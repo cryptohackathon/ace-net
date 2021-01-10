@@ -4,7 +4,7 @@ We will explore possible applications of functional encryption (FE) on analyzing
 
 Exposure Notification protocol collects contact log data through registration of Bluetooth low energy transmissions in a highly privacy preserving manner, on user's devices, that prevents reconstruction of contact/exposure network, including the information about the user and his/her (possible) contagion. 
 
-Our goal is to propose possible modifications of the current version of the protocol where mobile devices could transmit certain functionally encrypted data from contact tracing logs to a central server (or between each other) which would enable calculation of certain contact network parameters while still fully preserving privacy. 
+The goal of [ACE* project](https://github.com/cryptohackathon/ace-net) is to propose possible modifications of the current version of the protocol where mobile devices could transmit certain functionally encrypted data from contact tracing logs to a central server (or between each other) which would enable calculation of certain contact network parameters while still fully preserving privacy. 
 
 In this way, users and health authorities could benefit from information on a level of social distancing without invading their citizen's privacy.
 
