@@ -82,17 +82,17 @@ export class ExposurePool {
     }
 
     get publicKeys(): string[] {
-        if (this._status === 'ENCRYPTION' || this._status === 'FINALIZED') return null
+        if (['REGISTRATION', 'EXPIRED'].indexOf(this._status) >= 0) return null
         return this._publicKeys
     }
 
     get cypherTexts(): string[][] {
-        if (this._status === 'FINALIZED') return null
+        if (['FINALIZED', 'CALCULATED'].indexOf(this._status) < 0) return null
         return this._cypherTexts
     }
 
     get decryptionKeys(): string[] {
-        if (this._status === 'FINALIZED') return null
+        if (['FINALIZED', 'CALCULATED'].indexOf(this._status) < 0) return null
         return this._decryptionKeys
     }
 
@@ -135,6 +135,7 @@ export class ExposurePool {
             throw Error("Client registration expired.")
         }
         this._publicKeys[id] = payload.keyShare;
+        console.log("ADDING PUBLIC KEY:", payload)
         if (!this.publicKeyAssebled) return this.info
         // public key is assembled, change status
         this._status = 'ENCRYPTION'

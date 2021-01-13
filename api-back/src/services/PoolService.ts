@@ -5,49 +5,65 @@ import { PoolDataPayload } from "../models/PoolDataPayload";
 import { PublicKeyShareRequest } from "../models/PublicKeyShareRequest";
 import { QueryParams } from "../models/QueryParams";
 import { RegistrationInfo } from "../models/RegistrationInfo";
+import { wsServer } from "../server";
 
 @Singleton
 @Factory(() => new PoolService())
 export class PoolService {
     poolMap = new Map<string, ExposurePool>()
 
+    wsServer = wsServer
+
     register(poolLabel?: string): RegistrationInfo {
         let pool: ExposurePool = null;
         console.log("LAB:", poolLabel)
-        if(!poolLabel) {   // register to any pool
+        if (!poolLabel) {   // register to any pool
             const sortedKeys = [...this.poolMap.keys()].sort()
             console.log("SK:", sortedKeys)
-            for(const label of sortedKeys) {  // find first pool where you can register
+            for (const label of sortedKeys) {  // find first pool where you can register
                 const tmpPool = this.poolMap.get(label)
-                if(tmpPool.status !== 'REGISTRATION') continue
+                if (tmpPool.status !== 'REGISTRATION') continue
                 try {
                     console.log("Trying")
                     const res = tmpPool.register()
-                    if(res) return res
-                } catch(e) {
+                    if (res) {
+                        wsServer.clients.forEach(client => {
+                            client.send(`REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`);
+                        });
+                        return res
+                    }
+                } catch (e) {
                     console.log("ERR:", e)
                     continue
                 }
             }
-            if(pool === null) {  // need a new pool
+            if (pool === null) {  // need a new pool
                 console.log("CREATING NEW POOL")
                 pool = new ExposurePool()
                 this.poolMap.set(pool.label, pool)
-                return pool.register()
+                const res = pool.register()
+                wsServer.clients.forEach(client => {
+                    client.send(`REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`);
+                });
+                return res
             }
         } else {   // label provided, must exist, try to register to specific pool
             pool = this.poolMap.get(poolLabel)
-            if(!pool) {
-                throw Error(`Pool '${poolLabel}' does not exist.`)
+            if (!pool) {
+                throw Error(`Pool '${ poolLabel }' does not exist.`)
             }
-            return pool.register()
+            const res = pool.register()
+            wsServer.clients.forEach(client => {
+                client.send(`REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`);
+            });
+            return res
         }
     }
 
     status(poolLabel: string): PoolDataPayload {
         const pool = this.poolMap.get(poolLabel)
-        if(pool === null) {
-            throw Error(`Wrong pool label '${poolLabel}'.`)
+        if (pool === null) {
+            throw Error(`Wrong pool label '${ poolLabel }'.`)
         }
         return pool.info
     }
@@ -55,19 +71,34 @@ export class PoolService {
     postPublicKeyShare(payload: PublicKeyShareRequest): PoolDataPayload {
         const poolLabel = payload.poolLabel
         const pool = this.poolMap.get(poolLabel)
-        if(pool === null) {
-            throw Error(`Wrong pool label '${poolLabel}'.`)
+        if (pool === null) {
+            throw Error(`Wrong pool label '${ poolLabel }'.`)
         }
-        return pool.submitPublicKey(payload)
+        const res = pool.submitPublicKey(payload)
+        wsServer.clients.forEach(client => {
+            client.send(`SHARE SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`);
+            if(res.status === 'ENCRYPTION') {
+                client.send(`ENCRYPTION: -> pool: ${ res.poolLabel }`);
+            }
+
+        });
+        return res
     }
 
     postCypherTextAndDecryptionKeysShares(payload: CypherAndDKRequest): PoolDataPayload {
         const poolLabel = payload.poolLabel
         const pool = this.poolMap.get(poolLabel)
-        if(pool === null) {
-            throw Error(`Wrong pool label '${poolLabel}'.`)
+        if (pool === null) {
+            throw Error(`Wrong pool label '${ poolLabel }'.`)
         }
-        return pool.postCypherTextAndDecryptionKeysShares(payload)
+        const res = pool.postCypherTextAndDecryptionKeysShares(payload)
+        wsServer.clients.forEach(client => {
+            client.send(`CYPHER AND DK SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`);
+            if(res.status === 'FINALIZED') {
+                client.send(`FINALIZED: -> pool: ${ res.poolLabel }`);
+            }
+        });
+        return res
     }
 
     // TODO: now it returns all, fix for queryParameters

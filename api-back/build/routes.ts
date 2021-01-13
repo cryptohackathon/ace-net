@@ -50,7 +50,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "PoolStatus": {
         "dataType": "refAlias",
-        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["REGISTRATION"]},{"dataType":"enum","enums":["PK_COLLECTION"]},{"dataType":"enum","enums":["ENCRYPTION"]},{"dataType":"enum","enums":["FINALIZED"]},{"dataType":"enum","enums":["CALCULATED"]},{"dataType":"enum","enums":["EXPIRED"]}],"validators":{}},
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["REGISTRATION"]},{"dataType":"enum","enums":["ENCRYPTION"]},{"dataType":"enum","enums":["FINALIZED"]},{"dataType":"enum","enums":["CALCULATED"]},{"dataType":"enum","enums":["EXPIRED"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "PoolDataPayload": {
@@ -219,7 +219,7 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/ace/cyphertext-and-dk/upload',
+        app.post('/ace/cyphertext-and-dk',
             function (request: any, response: any, next: any) {
             const args = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"CypherAndDKRequest"},

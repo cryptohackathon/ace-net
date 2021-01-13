@@ -105,7 +105,6 @@
 				"type": "string",
 				"enum": [
 					"REGISTRATION",
-					"PK_COLLECTION",
 					"ENCRYPTION",
 					"FINALIZED",
 					"CALCULATED",
@@ -441,7 +440,7 @@
 				}
 			}
 		},
-		"/ace/cyphertext-and-dk/upload": {
+		"/ace/cyphertext-and-dk": {
 			"post": {
 				"operationId": "PostCypherTextAndDecryptionKeysShares",
 				"responses": {

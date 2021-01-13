@@ -59,7 +59,7 @@ export class ACEController extends Controller {
         )
     }
 
-    @Post("cyphertext-and-dk/upload")
+    @Post("cyphertext-and-dk")
     public async postCypherTextAndDecryptionKeysShares(
         @Body() requestBody: CypherAndDKRequest): Promise<ApiResponse<PoolDataPayload>> {
         return handleApiResponse(

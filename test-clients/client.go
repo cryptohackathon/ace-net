@@ -154,7 +154,7 @@ func postCypherAndDecryptionKey(cypherAndDKReq CypherAndDKRequest, poolDataPaylo
 func main() {
 	fmt.Println("Starting the client...")
 
-	startDelay := time.Duration(rand.Intn(1000))
+	startDelay := time.Duration(rand.Intn(500))
 	time.Sleep(startDelay * time.Millisecond)
 
 	var regInfo RegistrationInfo

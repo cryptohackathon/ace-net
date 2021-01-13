@@ -7,7 +7,7 @@
  * - CALCULATED - histograms are calculated
  * - EXPIRED - pool failed while PK_COLLECTION or ENCRYPTION phase before the the expiry time
  */
-export type PoolStatus = 'REGISTRATION' | 'PK_COLLECTION' | 'ENCRYPTION' | 'FINALIZED' | 'CALCULATED' | 'EXPIRED';
+export type PoolStatus = 'REGISTRATION' | 'ENCRYPTION' | 'FINALIZED' | 'CALCULATED' | 'EXPIRED';
 
 export interface PoolDataPayload {
     /**
