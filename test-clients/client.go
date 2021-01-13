@@ -124,6 +124,8 @@ func postPublicKeyShare(regInfo RegistrationInfo, poolDataPayload *PoolDataPaylo
 	}
 }
 
+// TODO: post key share, post encryptions, make robust, random timings, backoff retries on error, test with APIs
+
 func main() {
 	fmt.Println("Starting the client...")
 
