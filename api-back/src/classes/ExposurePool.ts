@@ -27,10 +27,15 @@ export class ExposurePool {
     private _histogram: number[]
 
     constructor(label?: string) {
-        this._label = label ? label : this._creationTime.toISOString()
         this._creationTime = new Date()
+        this._label = label ? label : this._creationTime.toISOString()
         this._status = 'REGISTRATION'
         this._clientRegistrationExpiry = Array<Date>(this.size).fill(null)
+        this._publicKeys = Array<string>(this.size).fill(null)
+        this._cypherTexts = Array<string[]>(this.size).fill(null)
+        this._decryptionKeys = Array<string>(this.size).fill(null)
+
+
     }
 
     get label(): string {
@@ -97,10 +102,14 @@ export class ExposurePool {
         if (exp === null || this._status !== "REGISTRATION" || now > this.expires) {
             throw Error("Registrations closed")
         }
-        const index = this._clientRegistrationExpiry.findIndex(x => x === null || x > now)
+        console.log(this._clientRegistrationExpiry)
+        const index = this._clientRegistrationExpiry.findIndex(x => x === null || x < now)
+        console.log("N:", now, index, this._clientRegistrationExpiry[index], this._clientRegistrationExpiry[index] > now)
         if (index < 0) throw Error("Registrations temporary closed. Try later again.")
+        console.log("INDEX:", index)
         this._clientRegistrationExpiry[index] = this.addMiliseconds(now, process.env.POOL_CLIENT_REGISTRATION_DURATION)
         this._publicKeys[index] = null
+
         return {
             clientSequenceId: index,
             poolLabel: this.label,
@@ -134,7 +143,7 @@ export class ExposurePool {
     }
 
     postCypherTextAndDecryptionKeysShares(payload: CypherAndDKRequest): PoolDataPayload {
-        if (this._status != 'ENCRYPTION') {
+        if (this._status !== 'ENCRYPTION') {
             throw Error("Server not accepting cyphers.")
         }
         if (this.label !== payload.poolLabel) {
@@ -159,13 +168,13 @@ export class ExposurePool {
     }
 
     postHistogram(payload: HistogramPayload) {
-        if (this._status != 'FINALIZED') {
+        if (this._status !== 'FINALIZED') {
             throw Error("Pool is not finalized.")
         }
         if (this.label !== payload.poolLabel) {
             throw Error(`Wrong pool label. Provided: '${ payload.poolLabel }', should be '${ this.label }'.`)
         }
-        if (process.env.ANALYTICS_SECRET != payload.secret) {
+        if (process.env.ANALYTICS_SECRET !== payload.secret) {
             throw Error('Authorization error')
         }
         this._histogram = payload.histogram
@@ -177,7 +186,7 @@ export class ExposurePool {
         return {
             status: this._status,
             poolLabel: this.label,
-            poolExpiry: exp != null ? exp.toISOString() : null,
+            poolExpiry: exp ? exp.toISOString() : null,
             creationTime: this._creationTime ? this._creationTime.toISOString() : null,
             registrationTime: this._registrationTime ? this._registrationTime.toISOString() : null,
             finalizationTime: this._finalizationTime ? this._finalizationTime.toISOString() : null,

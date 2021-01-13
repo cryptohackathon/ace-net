@@ -10,11 +10,11 @@ export interface PublicKeyShareRequest {
     poolLabel: string;
 
     /**
-     * UTC timestamp denoting user registration expiry time. Should be provided exactly as obtained 
+     * UTC timestamp denoting user registration expiry time. Should be provided exactly as obtained
      * at registration! // TODO: currently it is abused as registration token
      */
     registrationExpiry: string;
-    
+
     /**
      * Base64 encoded key share provided by the client
      */

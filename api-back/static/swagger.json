@@ -108,15 +108,32 @@
 					"PK_COLLECTION",
 					"ENCRYPTION",
 					"FINALIZED",
+					"CALCULATED",
 					"EXPIRED"
 				],
-				"description": "Registration status in regard to relevant pool status.\n- REGISTRATION - pool is accepting client registrations and after them uploads of public key shares\n- ENCRYPTION - public key is assembled, clients can send Cyphertexts and decryption key shares\n- FINALIZED - all cyphertexts and decryption keys are collected\n- EXPIRED - pool failed while PK_COLLECTION or ENCRYPTION phase before the the expiry time"
+				"description": "Registration status in regard to relevant pool status.\n- REGISTRATION - pool is accepting client registrations and after them uploads of public key shares\n- ENCRYPTION - public key is assembled, clients can send Cyphertexts and decryption key shares\n- FINALIZED - all cyphertexts and decryption keys are collected\n- CALCULATED - histograms are calculated\n- EXPIRED - pool failed while PK_COLLECTION or ENCRYPTION phase before the the expiry time"
 			},
 			"PoolDataPayload": {
 				"properties": {
 					"status": {
 						"$ref": "#/components/schemas/PoolStatus",
-						"description": "Registration status in regard to relevant pool status.\n- REGISTRATION - pool is accepting client registrations\n- PK_COLLECTION - all users are registred, public key shares are being collected\n- ENCRYPTION - public key is assembled, clients can send Cyphertexts and decryption key shares\n- FINALIZED - all cyphertexts and decryption keys are collected\n- EXPIRED - pool failed while PK_COLLECTION or ENCRYPTION phase before the the expiry time"
+						"description": "Status"
+					},
+					"creationTime": {
+						"type": "string",
+						"description": "Creation time"
+					},
+					"registrationTime": {
+						"type": "string",
+						"description": "End of registration time"
+					},
+					"finalizationTime": {
+						"type": "string",
+						"description": "End of finalization time"
+					},
+					"calculationTime": {
+						"type": "string",
+						"description": "Time of calculation of histograms"
 					},
 					"poolLabel": {
 						"type": "string",
@@ -149,6 +166,14 @@
 						},
 						"type": "array",
 						"description": "In case of status 'FINALIZED' contains Base64 encoded list of user decryption key shares together forming the\ndecryption key."
+					},
+					"histogram": {
+						"items": {
+							"type": "number",
+							"format": "double"
+						},
+						"type": "array",
+						"description": "Calculated histogram, submitted by certified analytics server"
 					}
 				},
 				"required": [
@@ -199,7 +224,7 @@
 					},
 					"registrationExpiry": {
 						"type": "string",
-						"description": "UTC timestamp denoting user registration expiry time. Should be provided exactly as obtained \nat registration! // TODO: currently it is abused as registration token"
+						"description": "UTC timestamp denoting user registration expiry time. Should be provided exactly as obtained\nat registration! // TODO: currently it is abused as registration token"
 					},
 					"keyShare": {
 						"type": "string",
@@ -318,8 +343,8 @@
 	},
 	"openapi": "3.0.0",
 	"paths": {
-		"/ace/register/{date}": {
-			"get": {
+		"/ace/register": {
+			"post": {
 				"operationId": "Register",
 				"responses": {
 					"200": {
@@ -340,10 +365,9 @@
 				"security": [],
 				"parameters": [
 					{
-						"description": "date of registration in the form of `YYYY-MM-dd`",
-						"in": "path",
-						"name": "date",
-						"required": true,
+						"in": "query",
+						"name": "label",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -449,7 +473,7 @@
 				}
 			}
 		},
-		"/ace/pools/list/{date}": {
+		"/ace/pools": {
 			"get": {
 				"operationId": "GetPools",
 				"responses": {
@@ -469,14 +493,6 @@
 				],
 				"security": [],
 				"parameters": [
-					{
-						"in": "path",
-						"name": "date",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
 					{
 						"in": "query",
 						"name": "sort",

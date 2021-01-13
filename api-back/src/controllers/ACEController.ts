@@ -24,12 +24,12 @@ export class ACEController extends Controller {
      * Registers a client to the pool
      * @param date date of registration in the form of `YYYY-MM-dd`
      */
-    @Get("register/{date}")
+    @Post("register")
     public async register(
-        @Path() date: string,
+        @Query() label?: string,
     ): Promise<ApiResponse<RegistrationInfo>> {
         return handleApiResponse(
-            this.aceEngine.register()
+            this.aceEngine.register(label)
         )
     }
 
@@ -67,15 +67,14 @@ export class ACEController extends Controller {
         )
     }
 
-    @Get("pools/list/{date}")
+    @Get("pools")
     public async getPools(
-        @Path() date: string,
         @Query() sort?: 'ASC' | 'DESC',
         @Query() limit?: number,
         @Query() offset?: number,
     ): Promise<ApiResponse<PaginatedList<PoolDataPayload>>> {
         return handleApiResponse(
-            this.aceEngine.listPools(date, {sort, limit, offset})
+            this.aceEngine.listPools({sort, limit, offset})
         )
     }
 

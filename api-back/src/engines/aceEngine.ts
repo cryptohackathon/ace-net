@@ -34,46 +34,32 @@ export class ACEEngine {
     }
 
     public async postPublicKeyShare(payload: PublicKeyShareRequest): Promise<PoolDataPayload> {
-        return {
-            poolLabel: "today_1",
-            poolExpiry: "2021-01-20T11:15:46.163Z",
-            status: 'ENCRYPTION'
-        } as PoolDataPayload
+        return this.poolService.postPublicKeyShare(payload)
+        // return {
+        //     poolLabel: "today_1",
+        //     poolExpiry: "2021-01-20T11:15:46.163Z",
+        //     status: 'ENCRYPTION'
+        // } as PoolDataPayload
     }
 
     public async postCypherTextAndDecryptionKeysShares(payload: CypherAndDKRequest): Promise<PoolDataPayload> {
-        return {
-            status: 'FINALIZED',
-            poolLabel: "today_1",
-            poolExpiry: "2021-01-20T11:15:46.163Z",
-            publicKeys: ["1", "2", "3"],
-            cypherTexts: [["4", "5", "6"], ["4", "5", "6"]],
-            decryptionKeys: ["7", "8", "9"]
-        } as PoolDataPayload
+        return this.poolService.postCypherTextAndDecryptionKeysShares(payload)
+        // return {
+        //     status: 'FINALIZED',
+        //     poolLabel: "today_1",
+        //     poolExpiry: "2021-01-20T11:15:46.163Z",
+        //     publicKeys: ["1", "2", "3"],
+        //     cypherTexts: [["4", "5", "6"], ["4", "5", "6"]],
+        //     decryptionKeys: ["7", "8", "9"]
+        // } as PoolDataPayload
     }
 
-    public async listPools(date: string, queryParams: QueryParams): Promise<PaginatedList<PoolDataPayload>> {
+    public async listPools(queryParams: QueryParams): Promise<PaginatedList<PoolDataPayload>> {
+        const items = this.poolService.listPools()
         return {
-            count: 2,
-            items: [
-                {
-                    status: 'FINALIZED',
-                    poolLabel: "today_1",
-                    poolExpiry: "2021-01-20T11:15:46.163Z",
-                    publicKeys: ["1", "2", "3"],
-                    cypherTexts: [["4", "5", "6"], ["4", "5", "6"]],
-                    decryptionKeys: ["7", "8", "9"]
-                },
-                {
-                    status: 'FINALIZED',
-                    poolLabel: "today_2",
-                    poolExpiry: "2021-01-20T11:15:46.163Z",
-                    publicKeys: ["11", "21", "31"],
-                    cypherTexts: [["41", "51", "61"], ["41", "51", "61"]],
-                    decryptionKeys: ["71", "81", "91"]
-                }
-            ],
-            limit: 100,
+            count: items.length,
+            items,
+            // limit: 100,
             offset: 0
         }
     }

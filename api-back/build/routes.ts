@@ -50,18 +50,23 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "PoolStatus": {
         "dataType": "refAlias",
-        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["REGISTRATION"]},{"dataType":"enum","enums":["PK_COLLECTION"]},{"dataType":"enum","enums":["ENCRYPTION"]},{"dataType":"enum","enums":["FINALIZED"]},{"dataType":"enum","enums":["EXPIRED"]}],"validators":{}},
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["REGISTRATION"]},{"dataType":"enum","enums":["PK_COLLECTION"]},{"dataType":"enum","enums":["ENCRYPTION"]},{"dataType":"enum","enums":["FINALIZED"]},{"dataType":"enum","enums":["CALCULATED"]},{"dataType":"enum","enums":["EXPIRED"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "PoolDataPayload": {
         "dataType": "refObject",
         "properties": {
             "status": {"ref":"PoolStatus","required":true},
+            "creationTime": {"dataType":"string"},
+            "registrationTime": {"dataType":"string"},
+            "finalizationTime": {"dataType":"string"},
+            "calculationTime": {"dataType":"string"},
             "poolLabel": {"dataType":"string","required":true},
             "poolExpiry": {"dataType":"string","required":true},
             "publicKeys": {"dataType":"array","array":{"dataType":"string"}},
             "cypherTexts": {"dataType":"array","array":{"dataType":"array","array":{"dataType":"string"}}},
             "decryptionKeys": {"dataType":"array","array":{"dataType":"string"}},
+            "histogram": {"dataType":"array","array":{"dataType":"double"}},
         },
         "additionalProperties": false,
     },
@@ -133,10 +138,10 @@ export function RegisterRoutes(app: express.Router) {
     //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
-        app.get('/ace/register/:date',
+        app.post('/ace/register',
             function (request: any, response: any, next: any) {
             const args = {
-                    date: {"in":"path","name":"date","required":true,"dataType":"string"},
+                    label: {"in":"query","name":"label","dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -241,10 +246,9 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/ace/pools/list/:date',
+        app.get('/ace/pools',
             function (request: any, response: any, next: any) {
             const args = {
-                    date: {"in":"path","name":"date","required":true,"dataType":"string"},
                     sort: {"in":"query","name":"sort","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
                     limit: {"in":"query","name":"limit","dataType":"double"},
                     offset: {"in":"query","name":"offset","dataType":"double"},
