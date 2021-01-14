@@ -7,7 +7,9 @@ const port = process.env.SERVER_PORT
 export const wsServer = new WebSocket.Server({ noServer: true });
 wsServer.on('connection', (socket: WebSocket) => {
     socket.on('message', (message: string) => console.log(message));
-    socket.send('Hi there, I am a WebSocket server');
+    socket.send(JSON.stringify({
+        message: 'Hi there, I am a WebSocket server'
+    }));
 });
 
 const server = app.listen(port, () =>

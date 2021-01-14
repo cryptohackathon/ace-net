@@ -29,7 +29,9 @@ export class PoolService {
                     const res = tmpPool.register()
                     if (res) {
                         wsServer.clients.forEach(client => {
-                            client.send(`REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`);
+                            client.send(JSON.stringify({
+                                message: `REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`
+                            }));
                         });
                         return res
                     }
@@ -44,7 +46,9 @@ export class PoolService {
                 this.poolMap.set(pool.label, pool)
                 const res = pool.register()
                 wsServer.clients.forEach(client => {
-                    client.send(`REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`);
+                    client.send(JSON.stringify({
+                        message: `REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`
+                    }));
                 });
                 return res
             }
@@ -55,7 +59,9 @@ export class PoolService {
             }
             const res = pool.register()
             wsServer.clients.forEach(client => {
-                client.send(`REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`);
+                client.send(JSON.stringify({
+                    message: `REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`
+                }));
             });
             return res
         }
@@ -77,9 +83,13 @@ export class PoolService {
         }
         const res = pool.submitPublicKey(payload)
         wsServer.clients.forEach(client => {
-            client.send(`SHARE SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`);
-            if(res.status === 'ENCRYPTION') {
-                client.send(`ENCRYPTION: -> pool: ${ res.poolLabel }`);
+            client.send(JSON.stringify({
+                message: `SHARE SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`
+            }));
+            if (res.status === 'ENCRYPTION') {
+                client.send(JSON.stringify({
+                    message: `ENCRYPTION: -> pool: ${ res.poolLabel }`
+                }));
             }
 
         });
@@ -94,9 +104,13 @@ export class PoolService {
         }
         const res = pool.postCypherTextAndDecryptionKeysShares(payload)
         wsServer.clients.forEach(client => {
-            client.send(`CYPHER AND DK SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`);
-            if(res.status === 'FINALIZED') {
-                client.send(`FINALIZED: -> pool: ${ res.poolLabel }`);
+            client.send(JSON.stringify({
+                message: `CYPHER AND DK SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`
+            }));
+            if (res.status === 'FINALIZED') {
+                client.send(JSON.stringify({
+                    message: `FINALIZED: -> pool: ${ res.poolLabel }`
+                }));
             }
         });
         return res
@@ -104,7 +118,7 @@ export class PoolService {
 
     listPools(status?: string): PoolDataPayload[] {
         const res = [...this.poolMap.values()].map(x => x.info)
-        if(status) {
+        if (status) {
             return res.filter(x => x.status === status)
         }
         return res
