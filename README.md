@@ -49,16 +49,44 @@ In the current version of the protocol, the data about the network and all encou
 
 Actual information from the field, e.g. about social distancing (days since exposure), yesterday’s risk encounters (nr. of keys matched), and yesterday’s risk received (max, sum), can help in better management of the health crysis with less coercive measures. These data can be processed for a region, when region label is provided by the user or for the whole country. 
 
-
-
 Each CWA app can send (after explicit confirmation by the user) information about the number of encounters it 
-
-
 
 Using this approach, we can use functional encryption to process the data from multiple CWA apps on the analytics server, to get meaningful insights about exposure networks.
 Health authorities now have a tool to specify the configuration settings that are used in risk score calculations and notification thresholds. 
 Additionally, by lowering risky encounters (e.g. through efficient policies), the spread of the disease can be lowered, too.
 
+
+## ACE* Framework
+In order to gather encrypted data and extract some useful metrics from it, we have developed a framework with the multi-client functional encryption scheme for inner product in its core. The framework serves to produce data represented in histograms. A histogram is obtained from the data submitted by a group of clients (CWA users) who join to a pool characterized by time and location.
+
+![Alt text](ace-net-scheme.png?raw=true "ACE* Framework")
+
+### Process
+* *Phase 1: Registration*
+Clients join a pool. On enrollment they are assigned a sequence number. Based on the sequence number a client generate a key and submits it to the pool.
+
+* *Phase 2: Key sharing*
+All client keys are gathered in a pool and communicated to the clients together with histogram details.
+
+* *Phase 3: Data encryption and key derivation*
+Using the agreed multiple key, each client encripts its data (usually a vector of zeros with a single one corresponding to the bin of the histogram) and derives a key share (usually a key share for a vector of ones). The client sends this data back to pool.
+
+* *Phase 4: Data decryption*
+All data is gathered in the pool. It consist of a ciphertext collected from clients and key shares than can be used to apply an inner product operation to the ciphertexts. This in turn allows a histogram extraction in the analytics server.
+
+### Components
+
+* *Backend app*
+A nodejs application for pool management. It takes care of pool initialization and exposes an API to clients. It stores the data received from clients and eventually communicates with analytics engine to extract histograms.
+
+* *Client CLI in the client mode*
+A command line interface written in GO is a user app mockup that communicates with the backend app. It is based on GoFE library and uses DMCFE scheme.
+
+* *Client CLI in the analytics mode*
+A command line interface written in GO is an analytics server mockup that is called by the backend app to decrypt user data. It is based on GoFE library.
+
+* *Frontend app*
+A nodejs application build with Angular that interactively logs the data gathering process.
 
 
 ## Topics for future work
