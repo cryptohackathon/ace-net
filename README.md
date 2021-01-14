@@ -83,17 +83,17 @@ In order to gather encrypted data and extract some useful metrics from it, we ha
 
 ## Developer documentation
 
-# api-back
+### api-back
 Required: [node.js](https://nodejs.org/)
 
 Run `npm install` and `npm run dev` to start the server on port 9500. Access Swagger with API documentation on `localhost:9500/api-doc/`.
 
-# test-clients
+### test-clients
 Required: [go](https://golang.org/), [GoFE](https://github.com/fentec-project/gofe)
 
 Use `./run-clients.sh`to start client simulator and `./run-analytics-server` to start mockup analytics server.
 
-# ace-net-fe
+### ace-net-fe
 Required: [node.js](https://nodejs.org/), [Angular](https://angular.io/)
 
 Run `npm install` and `ng serve` to start the server on port 4200.
