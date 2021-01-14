@@ -1,6 +1,52 @@
-<p>home works!</p>
+<div class="container">
+  <div class="title">A<img src="assets/ace.png" class="c-rona">E* - Analytics on Covid Exposure Networks</div>
+  <div class="d-flex justify-content-between">
+    <div class="table-main-title">
+      Pool overview <ng-container *ngIf="data$ | async as data">({{data.length}})</ng-container>
+    </div>
+    <div class="button-wrapper">
+      <button type="button" class="btn btn-primary" (click)="reset()">Reset</button>
+    </div>
+  </div>
+  <ng-container *ngIf="data$ | async as data">
+    <table
+      class="table table-hover table-striped table-bordered"
+      cellspacing="0">
+      <thead *ngIf="slotLabels$ | async as slotLabels">
+        <tr>
+          <th>Status</th>
+          <th>Size</th>
+          <th>#PubKey Shrs</th>
+          <th>#Cyphertexts</th>
+          <!-- <th *ngFor="let label of slotLabels; let i= index">{{label}}</th> -->
+          <th>Histogram</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of data">
+          <td [ngStyle]="{'color': statusColor(row.status)}">{{row.status}}</td>
+          <td>{{row.poolSize}}</td>
+          <td>{{row.noPublicKeys}}</td>
+          <td>{{row.noCyphertexts}}</td>
+          <!-- <td *ngFor="let label of row.slotLabels; let i= index">
+            <ng-container>{{histogramValue(row.histogram, i)}}</ng-container>
+          </td> -->
+          <td>
+            <div class="chart-wrapper" *ngIf="row.histogram">
+              <canvas baseChart
+                [datasets]="chartData(row.histogram)"
+                [labels]="row.slotLabels"
+                [options]="barChartOptions"
+                [plugins]="barChartPlugins"
+                [legend]="barChartLegend"
+                [chartType]="barChartType">
+              </canvas>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-DATA:
-<ng-container *ngIf="data$ | async as data">
-  <pre>{{data | json}}</pre>
-</ng-container>
+    <!-- <pre>{{data | json}}</pre> -->
+  </ng-container>
+</div>

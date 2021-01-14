@@ -55,7 +55,7 @@ export interface PoolSummary {
      * Labels for slots
      */
     slotLabels: string[];
-    
+
     /**
      * Calculated histogram, submitted by certified analytics server
      */

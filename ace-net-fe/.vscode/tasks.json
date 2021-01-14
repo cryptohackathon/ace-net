@@ -6,8 +6,8 @@
         {
             "label": "ngserve",
             "type": "shell",
-            "command": "echo Starting build... && ng serve",
-            // "command": "echo Starting build... && ng serve --host 0.0.0.0 --proxy-config proxy.FIRST-DEFINE-ONE.conf.json",
+            // "command": "echo Starting build... && ng serve",
+            "command": "ng serve --host 0.0.0.0 --proxy-config proxy.local-test-api.conf.json",
             "isBackground": true,
             "problemMatcher": [
                 {

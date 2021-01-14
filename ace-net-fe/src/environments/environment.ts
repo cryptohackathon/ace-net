@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  wsEndpoint: "ws://localhost:9500"
+  wsEndpoint: "ws://localhost:9500",
+  basePath: ""
 };
 
 /*

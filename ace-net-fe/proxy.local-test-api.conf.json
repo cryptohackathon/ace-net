@@ -1,0 +1,11 @@
+{
+    "/ace": {
+        "target": "http://localhost:9500",
+        "secure": false,
+        "logLevel": "debug",
+        "pathRewrite": {
+
+        },
+        "changeOrigin": true
+    }
+}

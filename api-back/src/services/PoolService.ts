@@ -13,13 +13,14 @@ export class PoolService {
 
     constructor() {
         setInterval(() => {
+            console.log("WORKING")
             wsServer.clients.forEach(client => {
                 client.send(JSON.stringify({
                     message: 'POOLS_SUMMARY',
                     data: [...this.poolMap.values()].map(pool => pool.summary)
                 }));
             });
-        }, 500)
+        }, 1000)
     }
 
     poolMap = new Map<string, ExposurePool>()
