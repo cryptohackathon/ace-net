@@ -22,18 +22,31 @@ export class ExposurePool {
 
     private _clientRegistrationExpiry: Date[]
     private _publicKeys: string[]
-    private _cypherTexts: string[][]
-    private _decryptionKeys: string[]
+    private _cypherTexts: string[][]  // (i,j): i - client id, j - number of a slot
+    private _decryptionKeys: string[][] // (i, j): i - client id, j position in key
     private _histogram: number[]
+    private _slotLabels: string[]
+    private _innerVector: number[];   // vector for inner product
 
-    constructor(label?: string) {
+    constructor(slotLabels: string[], innerVector: number[], label?: string) {
+        if(!slotLabels) {
+            throw Error("Must not be null: 'slotLabels'")
+        }
+        if(!innerVector) {
+            throw Error("Must not be null: 'innerVector'")
+        }
+        if(innerVector.length !== slotLabels.length) {
+            throw Error("Lengths of 'slotLabel' and 'innerVector' do no match")
+        }
+        this._slotLabels = slotLabels
+        this._innerVector = innerVector
         this._creationTime = new Date()
         this._label = label ? label : this._creationTime.toISOString()
         this._status = 'REGISTRATION'
         this._clientRegistrationExpiry = Array<Date>(this.size).fill(null)
         this._publicKeys = Array<string>(this.size).fill(null)
         this._cypherTexts = Array<string[]>(this.size).fill(null)
-        this._decryptionKeys = Array<string>(this.size).fill(null)
+        this._decryptionKeys = Array<string[]>(this.size).fill(null)
 
 
     }
@@ -92,7 +105,7 @@ export class ExposurePool {
         return this._cypherTexts
     }
 
-    get decryptionKeys(): string[] {
+    get decryptionKeys(): string[][] {
         if (['FINALIZED', 'CALCULATED'].indexOf(this._status) < 0) return null
         return this._decryptionKeys
     }
@@ -115,7 +128,9 @@ export class ExposurePool {
             clientSequenceId: index,
             poolLabel: this.label,
             registrationExpiry: this._clientRegistrationExpiry[index].toISOString(),
-            status: this._status
+            status: this._status,
+            slotLabels: this._slotLabels,
+            innerVector: this._innerVector
         } as RegistrationInfo
     }
 
@@ -198,6 +213,8 @@ export class ExposurePool {
             publicKeys: this.publicKeys,
             cypherTexts: this.cypherTexts,
             decryptionKeys: this.decryptionKeys,
+            slotLabels: this._slotLabels,
+            innerVector: this._innerVector,
             histogram: this._histogram
         }
     }

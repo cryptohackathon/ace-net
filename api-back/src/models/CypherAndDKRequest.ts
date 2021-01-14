@@ -17,5 +17,5 @@ export interface CypherAndDKRequest {
     /**
      * Base64 encoded client's decryption key share
      */
-    decryptionKeyShare: string;
+    decryptionKeyShare: string[];
 }

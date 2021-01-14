@@ -58,7 +58,17 @@ export interface PoolDataPayload {
      * In case of status 'FINALIZED' contains Base64 encoded list of user decryption key shares together forming the
      * decryption key.
      */
-    decryptionKeys?: string[];
+    decryptionKeys?: string[][];
+
+    /**
+     * Labels for slots
+     */
+    slotLabels: string[];
+
+    /**
+     * Inner vector - vector 'y' that is used for inner product
+     */
+    innerVector: number[];
 
     /**
      * Calculated histogram, submitted by certified analytics server

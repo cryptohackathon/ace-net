@@ -13,6 +13,16 @@ export interface RegistrationInfo {
     registrationExpiry: string;
 
     /**
+     * Labels for slots
+     */
+    slotLabels: string[];
+
+    /**
+     * Inner vector - vector 'y' that is used for inner product
+     */
+    innerVector: number[];
+
+    /**
      * Registration status in regard to relevant pool status.
      * - REGISTRATION - pool is accepting client registrations
      * - PK_COLLECTION - all users are registred, public key shares are being collected

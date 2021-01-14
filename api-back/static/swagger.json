@@ -21,6 +21,21 @@
 						"type": "string",
 						"description": "UTC timestamp denoting user registration expiry time"
 					},
+					"slotLabels": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"description": "Labels for slots"
+					},
+					"innerVector": {
+						"items": {
+							"type": "number",
+							"format": "double"
+						},
+						"type": "array",
+						"description": "Inner vector - vector 'y' that is used for inner product"
+					},
 					"status": {
 						"type": "string",
 						"enum": [
@@ -37,6 +52,8 @@
 					"clientSequenceId",
 					"poolLabel",
 					"registrationExpiry",
+					"slotLabels",
+					"innerVector",
 					"status"
 				],
 				"type": "object",
@@ -161,10 +178,28 @@
 					},
 					"decryptionKeys": {
 						"items": {
-							"type": "string"
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
 						},
 						"type": "array",
 						"description": "In case of status 'FINALIZED' contains Base64 encoded list of user decryption key shares together forming the\ndecryption key."
+					},
+					"slotLabels": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"description": "Labels for slots"
+					},
+					"innerVector": {
+						"items": {
+							"type": "number",
+							"format": "double"
+						},
+						"type": "array",
+						"description": "Inner vector - vector 'y' that is used for inner product"
 					},
 					"histogram": {
 						"items": {
@@ -178,7 +213,9 @@
 				"required": [
 					"status",
 					"poolLabel",
-					"poolExpiry"
+					"poolExpiry",
+					"slotLabels",
+					"innerVector"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -258,7 +295,10 @@
 						"description": "Base64 encoded client's cyphertext"
 					},
 					"decryptionKeyShare": {
-						"type": "string",
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
 						"description": "Base64 encoded client's decryption key share"
 					}
 				},
