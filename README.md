@@ -98,6 +98,8 @@ Required: [node.js](https://nodejs.org/), [Angular](https://angular.io/)
 
 Run `npm install` and `ng serve` to start the server on port 4200.
 
+Find more detailed instructions in project subdirectories.
+
 
 ## Topics for future work
 
