@@ -1,6 +1,7 @@
 import { CypherAndDKRequest } from "../models/CypherAndDKRequest";
 import { HistogramPayload } from "../models/HistogramPayload";
 import { PoolDataPayload, PoolStatus } from "../models/PoolDataPayload";
+import { PoolSummary } from "../models/PoolSummary";
 import { PublicKeyShareRequest } from "../models/PublicKeyShareRequest";
 import { RegistrationInfo } from "../models/RegistrationInfo";
 
@@ -112,11 +113,8 @@ export class ExposurePool {
         if (exp === null || this._status !== "REGISTRATION" || now > this.expires) {
             throw Error("Registrations closed")
         }
-        console.log(this._clientRegistrationExpiry)
         const index = this._clientRegistrationExpiry.findIndex(x => x === null || x < now)
-        console.log("N:", now, index, this._clientRegistrationExpiry[index], this._clientRegistrationExpiry[index] > now)
         if (index < 0) throw Error("Registrations temporary closed. Try later again.")
-        console.log("INDEX:", index)
         this._clientRegistrationExpiry[index] = this.addMiliseconds(now, process.env.POOL_CLIENT_REGISTRATION_DURATION)
         this._publicKeys[index] = null
 
@@ -147,7 +145,6 @@ export class ExposurePool {
             throw Error("Client registration expired.")
         }
         this._publicKeys[id] = payload.keyShare;
-        console.log("ADDING PUBLIC KEY:", payload)
         if (!this.publicKeyAssebled) return this.info
         // public key is assembled, change status
         this._status = 'ENCRYPTION'
@@ -215,5 +212,22 @@ export class ExposurePool {
         }
     }
 
+    get summary(): PoolSummary {
+        const exp = this.expires
+        return {
+            status: this._status,
+            poolLabel: this.label,
+            poolExpiry: exp ? exp.toISOString() : null,
+            creationTime: this._creationTime ? this._creationTime.toISOString() : null,
+            registrationTime: this._registrationTime ? this._registrationTime.toISOString() : null,
+            finalizationTime: this._finalizationTime ? this._finalizationTime.toISOString() : null,
+            calculationTime: this._calculationTime ? this._calculationTime.toISOString() : null,
+            noPublicKeys: this._publicKeys.filter(x => x).length,
+            noCyphertexts: this._cypherTexts.filter(x => x).length,
+            poolSize: this.size,
+            slotLabels: this._slotLabels,
+            histogram: this._histogram
+        }
+    }
 
 }

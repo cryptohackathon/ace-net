@@ -10,6 +10,18 @@ import { wsServer } from "../server";
 @Singleton
 @Factory(() => new PoolService())
 export class PoolService {
+
+    constructor() {
+        setInterval(() => {
+            wsServer.clients.forEach(client => {
+                client.send(JSON.stringify({
+                    message: 'POOLS_SUMMARY',
+                    data: [...this.poolMap.values()].map(pool => pool.summary)
+                }));
+            });
+        }, 500)
+    }
+
     poolMap = new Map<string, ExposurePool>()
 
     private _innerVector: number[] = Array<number>(this.size).fill(1)  // all ones vector
@@ -33,11 +45,11 @@ export class PoolService {
                 try {
                     const res = tmpPool.register()
                     if (res) {
-                        wsServer.clients.forEach(client => {
-                            client.send(JSON.stringify({
-                                message: `REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`
-                            }));
-                        });
+                        // wsServer.clients.forEach(client => {
+                        //     client.send(JSON.stringify({
+                        //         message: `REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`
+                        //     }));
+                        // });
                         return res
                     }
                 } catch (e) {
@@ -50,11 +62,11 @@ export class PoolService {
                 pool = new ExposurePool(this._slotLabels, this._innerVector)
                 this.poolMap.set(pool.label, pool)
                 const res = pool.register()
-                wsServer.clients.forEach(client => {
-                    client.send(JSON.stringify({
-                        message: `REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`
-                    }));
-                });
+                // wsServer.clients.forEach(client => {
+                //     client.send(JSON.stringify({
+                //         message: `REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`
+                //     }));
+                // });
                 return res
             }
         } else {   // label provided, must exist, try to register to specific pool
@@ -63,11 +75,11 @@ export class PoolService {
                 throw Error(`Pool '${ poolLabel }' does not exist.`)
             }
             const res = pool.register()
-            wsServer.clients.forEach(client => {
-                client.send(JSON.stringify({
-                    message: `REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`
-                }));
-            });
+            // wsServer.clients.forEach(client => {
+            //     client.send(JSON.stringify({
+            //         message: `REGISTRATION: -> pool: ${ res.poolLabel }, id: ${ res.clientSequenceId }`
+            //     }));
+            // });
             return res
         }
     }
@@ -87,17 +99,17 @@ export class PoolService {
             throw Error(`Wrong pool label '${ poolLabel }'.`)
         }
         const res = pool.submitPublicKey(payload)
-        wsServer.clients.forEach(client => {
-            client.send(JSON.stringify({
-                message: `SHARE SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`
-            }));
-            if (res.status === 'ENCRYPTION') {
-                client.send(JSON.stringify({
-                    message: `ENCRYPTION: -> pool: ${ res.poolLabel }`
-                }));
-            }
+        // wsServer.clients.forEach(client => {
+        //     client.send(JSON.stringify({
+        //         message: `SHARE SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`
+        //     }));
+        //     if (res.status === 'ENCRYPTION') {
+        //         client.send(JSON.stringify({
+        //             message: `ENCRYPTION: -> pool: ${ res.poolLabel }`
+        //         }));
+        //     }
 
-        });
+        // });
         return res
     }
 
@@ -108,16 +120,16 @@ export class PoolService {
             throw Error(`Wrong pool label '${ poolLabel }'.`)
         }
         const res = pool.postCypherTextAndDecryptionKeysShares(payload)
-        wsServer.clients.forEach(client => {
-            client.send(JSON.stringify({
-                message: `CYPHER AND DK SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`
-            }));
-            if (res.status === 'FINALIZED') {
-                client.send(JSON.stringify({
-                    message: `FINALIZED: -> pool: ${ res.poolLabel }`
-                }));
-            }
-        });
+        // wsServer.clients.forEach(client => {
+        //     client.send(JSON.stringify({
+        //         message: `CYPHER AND DK SENT: -> pool: ${ res.poolLabel }, id: ${ payload.clientSequenceId }`
+        //     }));
+        //     if (res.status === 'FINALIZED') {
+        //         client.send(JSON.stringify({
+        //             message: `FINALIZED: -> pool: ${ res.poolLabel }`
+        //         }));
+        //     }
+        // });
         return res
     }
 
@@ -144,4 +156,5 @@ export class PoolService {
     reset() {
         this.poolMap.clear()
     }
+
 }
