@@ -105,21 +105,32 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "PaginatedList_PoolDataPayload_": {
+    "ApiResponse_PoolDataPayload-Array_": {
         "dataType": "refObject",
         "properties": {
-            "count": {"dataType":"double"},
-            "items": {"dataType":"array","array":{"ref":"PoolDataPayload"}},
-            "limit": {"dataType":"double"},
-            "offset": {"dataType":"double"},
+            "data": {"dataType":"array","array":{"ref":"PoolDataPayload"}},
+            "errorDetails": {"dataType":"string"},
+            "errorMessage": {"dataType":"string"},
+            "status": {"ref":"ApiDefaultResponseStatusEnum","required":true},
+            "validationErrorDetails": {"ref":"ApiValidationErrorDetails"},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "ApiResponse_PaginatedList_PoolDataPayload__": {
+    "HistogramPayload": {
         "dataType": "refObject",
         "properties": {
-            "data": {"ref":"PaginatedList_PoolDataPayload_"},
+            "secret": {"dataType":"string","required":true},
+            "poolLabel": {"dataType":"string","required":true},
+            "histogram": {"dataType":"array","array":{"dataType":"double"}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ApiResponse_any_": {
+        "dataType": "refObject",
+        "properties": {
+            "data": {"dataType":"any"},
             "errorDetails": {"dataType":"string"},
             "errorMessage": {"dataType":"string"},
             "status": {"ref":"ApiDefaultResponseStatusEnum","required":true},
@@ -249,9 +260,7 @@ export function RegisterRoutes(app: express.Router) {
         app.get('/ace/pools',
             function (request: any, response: any, next: any) {
             const args = {
-                    sort: {"in":"query","name":"sort","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
-                    limit: {"in":"query","name":"limit","dataType":"double"},
-                    offset: {"in":"query","name":"offset","dataType":"double"},
+                    status: {"in":"query","name":"status","dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -272,6 +281,59 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getPools.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/ace/histogram',
+            function (request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"HistogramPayload"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+            const controller: any = container.get<ACEController>(ACEController);
+            if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+            }
+
+
+            const promise = controller.postHistogram.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/ace/reset',
+            function (request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+            const controller: any = container.get<ACEController>(ACEController);
+            if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+            }
+
+
+            const promise = controller.reset.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

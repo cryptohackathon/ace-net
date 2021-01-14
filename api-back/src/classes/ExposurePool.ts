@@ -65,8 +65,9 @@ export class ExposurePool {
             case 'REGISTRATION':
                 return this.addMiliseconds(this._creationTime, process.env.POOL_REGISTRATION_DURATION)
             case 'ENCRYPTION':
+            case 'FINALIZED':
+            case 'CALCULATED':
                 return this.addMiliseconds(this._registrationTime, process.env.POOL_ENCRYPTION_DURATON)
-            case 'FINALIZED': return null;
             case 'EXPIRED': return this._creationTime
             default:
                 throw Error("Unhandled case")
@@ -169,17 +170,19 @@ export class ExposurePool {
     }
 
     postHistogram(payload: HistogramPayload) {
+        if (process.env.ANALYTICS_SECRET !== payload.secret) {
+            throw Error('Authorization error')
+        }
         if (this._status !== 'FINALIZED') {
             throw Error("Pool is not finalized.")
         }
         if (this.label !== payload.poolLabel) {
             throw Error(`Wrong pool label. Provided: '${ payload.poolLabel }', should be '${ this.label }'.`)
         }
-        if (process.env.ANALYTICS_SECRET !== payload.secret) {
-            throw Error('Authorization error')
-        }
         this._histogram = payload.histogram
+        this._status = 'CALCULATED'
         this._calculationTime = new Date()
+        return this.info
     }
 
     get info(): PoolDataPayload {
@@ -194,7 +197,8 @@ export class ExposurePool {
             calculationTime: this._calculationTime ? this._calculationTime.toISOString() : null,
             publicKeys: this.publicKeys,
             cypherTexts: this.cypherTexts,
-            decryptionKeys: this.decryptionKeys
+            decryptionKeys: this.decryptionKeys,
+            histogram: this._histogram
         }
     }
 

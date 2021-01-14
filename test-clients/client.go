@@ -3,14 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
+	"math/big"
 	"math/rand"
 	"net/http"
 	"time"
 )
-
-const host = "http://localhost:9500"
 
 // RegistrationInfo - registration info
 type RegistrationInfo struct {
@@ -51,7 +51,15 @@ type APIResponsePoolDataPayload struct {
 	Status       string          `json:"status"`
 }
 
-// PublicKeyShareRequest - pool data payload
+// APIResponsePoolDataPayloadArray - API response for PoolDataPayload
+type APIResponsePoolDataPayloadArray struct {
+	Data         []PoolDataPayload `json:"data"`
+	ErrorDetails *string           `json:"errorDetails"`
+	ErrorMessage *string           `json:"errorMessage"`
+	Status       string            `json:"status"`
+}
+
+// PublicKeyShareRequest - public key share
 type PublicKeyShareRequest struct {
 	ClientSequenceID   int    `json:"clientSequenceId"`
 	PoolLabel          string `json:"poolLabel"`
@@ -59,7 +67,7 @@ type PublicKeyShareRequest struct {
 	KeyShare           string `json:"keyShare"`
 }
 
-// CypherAndDKRequest - pool data payload
+// CypherAndDKRequest - cyphertext vector and partial decryption key
 type CypherAndDKRequest struct {
 	ClientSequenceID   int      `json:"clientSequenceId"`
 	PoolLabel          string   `json:"poolLabel"`
@@ -67,11 +75,16 @@ type CypherAndDKRequest struct {
 	DecryptionKeyShare string   `json:"decryptionKeyShare"`
 }
 
-func register(regInfo *RegistrationInfo) error {
-	// register
+// HistogramPayload - histogram payload
+type HistogramPayload struct {
+	Secret    string     `json:"secret"`
+	PoolLabel string     `json:"poolLabel"`
+	Histogram []*big.Int `json:"histogram"`
+}
+
+func register(host string, regInfo *RegistrationInfo) error {
 	APIUrl := host + "/ace/register"
 
-	// var registrationInfo RegistrationInfo
 	var apiResponse APIResponseRegistrationInfo
 	response, err := http.Post(APIUrl, "application/json", nil)
 	if err != nil {
@@ -87,11 +100,9 @@ func register(regInfo *RegistrationInfo) error {
 
 }
 
-func status(regInfo RegistrationInfo, poolDataPayload *PoolDataPayload) error {
-	// register
+func status(host string, regInfo RegistrationInfo, poolDataPayload *PoolDataPayload) error {
 	APIUrl := host + "/ace/status/" + regInfo.PoolLabel
 
-	// var registrationInfo RegistrationInfo
 	var apiResponse APIResponsePoolDataPayload
 	response, err := http.Get(APIUrl)
 	if err != nil {
@@ -107,11 +118,9 @@ func status(regInfo RegistrationInfo, poolDataPayload *PoolDataPayload) error {
 
 }
 
-func postPublicKeyShare(publicKeyShareReq PublicKeyShareRequest, poolDataPayload *PoolDataPayload) error {
-	// register
+func postPublicKeyShare(host string, publicKeyShareReq PublicKeyShareRequest, poolDataPayload *PoolDataPayload) error {
 	APIUrl := host + "/ace/public-key-share"
 
-	// var registrationInfo RegistrationInfo
 	var apiResponse APIResponsePoolDataPayload
 	jsonValue, _ := json.Marshal(publicKeyShareReq)
 	fmt.Printf("PUBLIC: %s\n", jsonValue)
@@ -128,11 +137,9 @@ func postPublicKeyShare(publicKeyShareReq PublicKeyShareRequest, poolDataPayload
 	return nil
 }
 
-func postCypherAndDecryptionKey(cypherAndDKReq CypherAndDKRequest, poolDataPayload *PoolDataPayload) error {
-	// register
+func postCypherAndDecryptionKey(host string, cypherAndDKReq CypherAndDKRequest, poolDataPayload *PoolDataPayload) error {
 	APIUrl := host + "/ace/cyphertext-and-dk"
 
-	// var registrationInfo RegistrationInfo
 	var apiResponse APIResponsePoolDataPayload
 	jsonValue, _ := json.Marshal(cypherAndDKReq)
 	response, err := http.Post(APIUrl, "application/json", bytes.NewBuffer(jsonValue))
@@ -142,18 +149,54 @@ func postCypherAndDecryptionKey(cypherAndDKReq CypherAndDKRequest, poolDataPaylo
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
-		fmt.Printf("BB: %s", string(apiResponseData))
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
 	}
 	*poolDataPayload = apiResponse.Data
 	return nil
 }
 
-// TODO: post key share, post encryptions, make robust, random timings, backoff retries on error, test with APIs
+func postHistogram(host string, histogramPayload HistogramPayload, poolDataPayload *PoolDataPayload) error {
+	// register
+	APIUrl := host + "/ace/histogram"
 
-func main() {
+	var apiResponse APIResponsePoolDataPayload
+	jsonValue, _ := json.Marshal(histogramPayload)
+	response, err := http.Post(APIUrl, "application/json", bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return fmt.Errorf("The HTTP request failed with error %s", err)
+	}
+	apiResponseData, _ := ioutil.ReadAll(response.Body)
+	err = json.Unmarshal(apiResponseData, &apiResponse)
+	if err != nil {
+		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
+	}
+	*poolDataPayload = apiResponse.Data
+	return nil
+}
+
+func listFinalized(host string, poolDataPayloadArray *[]PoolDataPayload) error {
+	// register
+	APIUrl := host + "/ace/pools?status=FINALIZED"
+
+	// var registrationInfo RegistrationInfo
+	var apiResponse APIResponsePoolDataPayloadArray
+	response, err := http.Get(APIUrl)
+	if err != nil {
+		return fmt.Errorf("The HTTP request failed with error %s", err)
+	}
+	apiResponseData, _ := ioutil.ReadAll(response.Body)
+	err = json.Unmarshal(apiResponseData, &apiResponse)
+	if err != nil {
+		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
+	}
+	*poolDataPayloadArray = apiResponse.Data
+	return nil
+}
+
+func simulateClient(host string) {
 	fmt.Println("Starting the client...")
 
+	// Initial delay
 	startDelay := time.Duration(rand.Intn(500))
 	time.Sleep(startDelay * time.Millisecond)
 
@@ -162,20 +205,29 @@ func main() {
 	var publicKeyShareReq PublicKeyShareRequest
 	var cypherAndDKReq CypherAndDKRequest
 
-	err := register(&regInfo)
+	// Registration
+	err := register(host, &regInfo)
 	if err != nil {
 		fmt.Println("Error while registring. Terminating client.")
 		return
 	}
+	// ==========
+	// TODO: initialize the client
+	// ==========
 	fmt.Println("REGISTRED")
 	fmt.Println(regInfo)
 
 	publicKeyShareReq.ClientSequenceID = regInfo.ClientSequenceID
 	publicKeyShareReq.PoolLabel = regInfo.PoolLabel
 	publicKeyShareReq.RegistrationExpiry = regInfo.RegistrationExpiry
-	publicKeyShareReq.KeyShare = fmt.Sprintf("<KEY-SHARE-%d>", regInfo.ClientSequenceID)
 
-	err = postPublicKeyShare(publicKeyShareReq, &statusData)
+	// ==========
+	// TODO: submit real public key share
+	publicKeyShareReq.KeyShare = fmt.Sprintf("<KEY-SHARE-%d>", regInfo.ClientSequenceID)
+	// ==========
+
+	// Sending public key share to central server
+	err = postPublicKeyShare(host, publicKeyShareReq, &statusData)
 	if err != nil {
 		fmt.Println("Error while checking status. Terminating client.")
 		return
@@ -183,6 +235,7 @@ func main() {
 	fmt.Println("PUBLIC KEY SHARE SUBMITTED")
 	fmt.Println(statusData.Status)
 
+	// Waiting for collection of all key shares on server
 	cnt := 0
 	const pollingIterationsLimit = 10
 	for statusData.Status != "ENCRYPTION" {
@@ -191,7 +244,7 @@ func main() {
 			fmt.Printf("Too many polling iterrations (%d). Terminating client.", cnt)
 			return
 		}
-		err = status(regInfo, &statusData)
+		err = status(host, regInfo, &statusData)
 		if err != nil {
 			fmt.Println("Error while checking status. Terminating client.")
 			return
@@ -206,16 +259,20 @@ func main() {
 		time.Sleep(delay * time.Millisecond)
 	}
 
-	fmt.Println("READY TO SUBMIT ENCRYPTION")
+	fmt.Println("PUBLIC KEY OBTAINED")
 	fmt.Println(statusData.Status)
 
 	cypherAndDKReq.ClientSequenceID = regInfo.ClientSequenceID
 	cypherAndDKReq.PoolLabel = regInfo.PoolLabel
+
+	// ==========
+	// TODO: provide real cyphertext and decryption key
 	cypherAndDKReq.CypherText = make([]string, 5)
 	copy(cypherAndDKReq.CypherText, []string{"CY", "PH", "ER", "TE", "XT"})
 	cypherAndDKReq.DecryptionKeyShare = fmt.Sprintf("<DEC-KEY-%d>", regInfo.ClientSequenceID)
+	// ==========
 
-	err = postCypherAndDecryptionKey(cypherAndDKReq, &statusData)
+	err = postCypherAndDecryptionKey(host, cypherAndDKReq, &statusData)
 	if err != nil {
 		fmt.Printf("Error while checking status: %v. Terminating client", err)
 		return
@@ -224,23 +281,82 @@ func main() {
 	fmt.Println("ENCRYPTION SUBMITTED")
 	fmt.Println(statusData.Status)
 
-	// fmt.Print(*statusData.CreationTime)
-
-	// response, err := http.Get("https://httpbin.org/ip")
-	// if err != nil {
-	//     fmt.Printf("The HTTP request failed with error %s\n", err)
-	// } else {
-	//     data, _ := ioutil.ReadAll(response.Body)
-	//     fmt.Println(string(data))
-	// }
-	// jsonData := map[string]string{"firstname": "Nic", "lastname": "Raboy"}
-	// jsonValue, _ := json.Marshal(jsonData)
-	// response, err = http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(jsonValue))
-	// if err != nil {
-	//     fmt.Printf("The HTTP request failed with error %s\n", err)
-	// } else {
-	//     data, _ := ioutil.ReadAll(response.Body)
-	//     fmt.Println(string(data))
-	// }
 	fmt.Println("END. Terminating client.")
+
+}
+
+func simulateAnalyticsServer(host string, secret string) {
+	var poolDataPayloadArray []PoolDataPayload
+	var statusData PoolDataPayload
+	var histogramPayload HistogramPayload
+	histogramPayload.Secret = secret
+	for {
+		err := listFinalized(host, &poolDataPayloadArray)
+		if err != nil {
+			fmt.Printf("Error while checking status: %v. Terminating client.", err)
+			return
+		}
+		fmt.Printf("FINALIZED:\n")
+
+		for i := 0; i < len(poolDataPayloadArray); i++ {
+			histogramPayload.PoolLabel = poolDataPayloadArray[i].PoolLabel
+			cypherTextPtr := &(poolDataPayloadArray[i].CypherTexts)
+			decryptionKeysPtr := &(poolDataPayloadArray[i].DecryptionKeys)
+			// ==========
+			// TODO: deserialize and decrypt
+			fmt.Printf("%d: \n%v\n%v\n", i, *cypherTextPtr, *decryptionKeysPtr)
+
+			// ==========
+			// TODO: post decrypted values and create real histogram
+
+			exampleHistogram := make([]*big.Int, 0)
+			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(1))
+			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(2))
+			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(5))
+			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(0))
+			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(2))
+			// ==========
+
+			histogramPayload.Histogram = exampleHistogram
+			err = postHistogram(host, histogramPayload, &statusData)
+			if err != nil {
+				fmt.Println("Error while checking status. Terminating client.")
+				return
+			}
+			fmt.Printf("HISTOGRAM SUBMITTED: %v\n", histogramPayload)
+			fmt.Println(statusData.Status)
+		}
+
+		delay := time.Duration(2000)
+		time.Sleep(delay * time.Millisecond)
+	}
+}
+
+func main() {
+
+	modePtr := flag.String("mode", "CLIENT", "Client operation mode: CLIENT or ANALYTICS")
+	hostPtr := flag.String("host", "http://localhost:9500", "URL of central server")
+	secretPtr := flag.String("secret", "", "URL of central server")
+	flag.Parse()
+	// 	argsWithProg := os.Args
+
+	// 	const defaultHost = "http://localhost:9500"
+	// const defaultMode = "CLIENT"
+
+	mode := *modePtr
+	host := *hostPtr
+	secret := *secretPtr
+
+	fmt.Printf("Running in %s mode. Connected to %s\n", mode, host)
+	if mode == "CLIENT" {
+		simulateClient(host)
+		return
+	}
+
+	if mode == "ANALYTICS" {
+		simulateAnalyticsServer(host, secret)
+		return
+	}
+
+	fmt.Printf("ERROR: Wrong mode: %s\n", mode)
 }

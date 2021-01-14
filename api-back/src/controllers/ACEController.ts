@@ -8,6 +8,7 @@ import { Inject } from "typescript-ioc";
 import { ACEEngine } from "../engines/aceEngine";
 import { ApiResponse, handleApiResponse } from "../models/ApiResponse";
 import { CypherAndDKRequest } from "../models/CypherAndDKRequest";
+import { HistogramPayload } from "../models/HistogramPayload";
 import { PaginatedList } from "../models/PaginatedList";
 import { PoolDataPayload } from "../models/PoolDataPayload";
 import { PublicKeyShareRequest } from "../models/PublicKeyShareRequest";
@@ -69,17 +70,26 @@ export class ACEController extends Controller {
 
     @Get("pools")
     public async getPools(
-        @Query() sort?: 'ASC' | 'DESC',
-        @Query() limit?: number,
-        @Query() offset?: number,
-    ): Promise<ApiResponse<PaginatedList<PoolDataPayload>>> {
+        @Query() status?: string
+    ): Promise<ApiResponse<PoolDataPayload[]>> {
         return handleApiResponse(
-            this.aceEngine.listPools({sort, limit, offset})
+            this.aceEngine.listPools(status)
         )
     }
 
+    @Post("histogram")
+    public async postHistogram(
+        @Body() requestBody: HistogramPayload): Promise<ApiResponse<PoolDataPayload>> {
+        return handleApiResponse(
+            this.aceEngine.postHistogram(requestBody)
+        )
+    }
 
-
-
+    @Post("reset")
+    public async reset(): Promise<ApiResponse<any>> {
+        return handleApiResponse(
+            this.aceEngine.reset()
+        )
+    }
 
 }

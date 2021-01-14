@@ -1,6 +1,7 @@
 import { Factory, Singleton } from "typescript-ioc";
 import { ExposurePool } from "../classes/ExposurePool";
 import { CypherAndDKRequest } from "../models/CypherAndDKRequest";
+import { HistogramPayload } from "../models/HistogramPayload";
 import { PoolDataPayload } from "../models/PoolDataPayload";
 import { PublicKeyShareRequest } from "../models/PublicKeyShareRequest";
 import { QueryParams } from "../models/QueryParams";
@@ -101,9 +102,27 @@ export class PoolService {
         return res
     }
 
-    // TODO: now it returns all, fix for queryParameters
-    listPools(queryParams?: QueryParams): PoolDataPayload[] {
-        return [...this.poolMap.values()].map(x => x.info)
+    listPools(status?: string): PoolDataPayload[] {
+        const res = [...this.poolMap.values()].map(x => x.info)
+        if(status) {
+            return res.filter(x => x.status === status)
+        }
+        return res
     }
 
+    postHistogram(payload: HistogramPayload) {
+        if (process.env.ANALYTICS_SECRET !== payload.secret) {
+            throw Error('Authorization error')
+        }
+        const poolLabel = payload.poolLabel
+        const pool = this.poolMap.get(poolLabel)
+        if (pool === null) {
+            throw Error(`Wrong pool label '${ poolLabel }'.`)
+        }
+        return pool.postHistogram(payload)
+    }
+
+    reset() {
+        this.poolMap.clear()
+    }
 }
