@@ -87,9 +87,9 @@ type CypherAndDKRequest struct {
 
 // HistogramPayload - histogram payload
 type HistogramPayload struct {
-	Secret    string     `json:"secret"`
-	PoolLabel string     `json:"poolLabel"`
-	Histogram []*big.Int `json:"histogram"`
+	Secret    string `json:"secret"`
+	PoolLabel string `json:"poolLabel"`
+	Histogram []int  `json:"histogram"`
 }
 
 func register(host string, regInfo *RegistrationInfo) error {
@@ -489,11 +489,16 @@ func simulateAnalyticsServer(host string, secret string) {
 			decryptionKeysPtr := &(poolDataPayloadArray[i].DecryptionKeys)
 
 			// Decrypt histogram
-			// histogram := decryptHistogram(cypherTextPtr)
+			histogram, err := decryptHistogram(
+				*poolDataPayloadArray[i].CypherTexts,
+				*poolDataPayloadArray[i].DecryptionKeys,
+				poolDataPayloadArray[i].SlotLabels,
+				poolDataPayloadArray[i].InnerVector)
 
 			// ==========
 			// TODO: deserialize and decrypt
 			fmt.Printf("%d: \n%v\n%v\n", i, *cypherTextPtr, *decryptionKeysPtr)
+			fmt.Printf("Histogram: %v\n", histogram)
 
 			// ==========
 			// TODO: post decrypted values and create real histogram
@@ -506,10 +511,10 @@ func simulateAnalyticsServer(host string, secret string) {
 			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(2))
 			// ==========
 
-			histogramPayload.Histogram = exampleHistogram
+			histogramPayload.Histogram = histogram
 			err = postHistogram(host, histogramPayload, &statusData)
 			if err != nil {
-				fmt.Println("Error while checking status. Terminating client.")
+				fmt.Printf("Error while checking status: %v. Terminating client.\n", err)
 				return
 			}
 			fmt.Printf("HISTOGRAM SUBMITTED: %v\n", histogramPayload)
