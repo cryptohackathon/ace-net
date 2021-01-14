@@ -409,7 +409,7 @@ func simulateClient(host string) {
 
 	// Waiting for collection of all key shares on server
 	cnt := 0
-	const pollingIterationsLimit = 10
+	const pollingIterationsLimit = 1000
 	for statusData.Status != "ENCRYPTION" {
 		cnt = cnt + 1
 		if cnt > 10 {
@@ -538,6 +538,7 @@ func simulateAnalyticsServer(host string, secret string) error {
 			}
 			fmt.Printf("HISTOGRAM SUBMITTED: %v\n", histogramPayload)
 			fmt.Println(statusData.Status)
+			return nil
 		}
 
 		delay := time.Duration(2000)
@@ -546,6 +547,7 @@ func simulateAnalyticsServer(host string, secret string) error {
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 
 	modePtr := flag.String("mode", "CLIENT", "Client operation mode: CLIENT or ANALYTICS")
 	hostPtr := flag.String("host", "http://localhost:9500", "URL of central server")
