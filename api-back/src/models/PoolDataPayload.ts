@@ -66,7 +66,7 @@ export interface PoolDataPayload {
     slotLabels: string[];
 
     /**
-     * Inner vector - vector 'y' that is used for inner product 
+     * Inner vector - vector 'y' that is used for inner product
      */
     innerVector: number[];
 

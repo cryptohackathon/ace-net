@@ -22,7 +22,7 @@ export class ExposurePool {
 
     private _clientRegistrationExpiry: Date[]
     private _publicKeys: string[]
-    private _cypherTexts: string[][]  //(i,j): i - client id, j - number of a slot
+    private _cypherTexts: string[][]  // (i,j): i - client id, j - number of a slot
     private _decryptionKeys: string[][] // (i, j): i - client id, j position in key
     private _histogram: number[]
     private _slotLabels: string[]
@@ -35,7 +35,7 @@ export class ExposurePool {
         if(!innerVector) {
             throw Error("Must not be null: 'innerVector'")
         }
-        if(innerVector.length != slotLabels.length) {
+        if(innerVector.length !== slotLabels.length) {
             throw Error("Lengths of 'slotLabel' and 'innerVector' do no match")
         }
         this._slotLabels = slotLabels

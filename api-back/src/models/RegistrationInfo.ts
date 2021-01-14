@@ -18,10 +18,10 @@ export interface RegistrationInfo {
     slotLabels: string[];
 
     /**
-     * Inner vector - vector 'y' that is used for inner product 
+     * Inner vector - vector 'y' that is used for inner product
      */
     innerVector: number[];
-    
+
     /**
      * Registration status in regard to relevant pool status.
      * - REGISTRATION - pool is accepting client registrations
