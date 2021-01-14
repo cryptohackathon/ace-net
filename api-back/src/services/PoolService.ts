@@ -4,7 +4,6 @@ import { CypherAndDKRequest } from "../models/CypherAndDKRequest";
 import { HistogramPayload } from "../models/HistogramPayload";
 import { PoolDataPayload } from "../models/PoolDataPayload";
 import { PublicKeyShareRequest } from "../models/PublicKeyShareRequest";
-import { QueryParams } from "../models/QueryParams";
 import { RegistrationInfo } from "../models/RegistrationInfo";
 import { wsServer } from "../server";
 
@@ -12,6 +11,9 @@ import { wsServer } from "../server";
 @Factory(() => new PoolService())
 export class PoolService {
     poolMap = new Map<string, ExposurePool>()
+
+    private _innerVector: number[] = [1,1,1,1,1]
+    private _slotLabels: string[] = this._innerVector.map(x => "L_"+x)
 
     wsServer = wsServer
 
@@ -42,7 +44,7 @@ export class PoolService {
             }
             if (pool === null) {  // need a new pool
                 console.log("CREATING NEW POOL")
-                pool = new ExposurePool()
+                pool = new ExposurePool(this._slotLabels, this._innerVector)
                 this.poolMap.set(pool.label, pool)
                 const res = pool.register()
                 wsServer.clients.forEach(client => {

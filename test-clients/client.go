@@ -24,6 +24,8 @@ type RegistrationInfo struct {
 	PoolLabel          string `json:"poolLabel"`
 	RegistrationExpiry string `json:"registrationExpiry"`
 	Status             string `json:"status"`
+	SlotLabels         string `json:"slotLabels"`
+	InnerVector        []int  `json:"innerVector"`
 }
 
 // APIResponseRegistrationInfo - API response for RegistrationInfo
@@ -45,8 +47,10 @@ type PoolDataPayload struct {
 	PoolExpiry       string      `json:"poolExpiry"`
 	PublicKeys       *[]string   `json:"publicKeys"`
 	CypherTexts      *[][]string `json:"cypherTexts"`
-	DecryptionKeys   *[]string   `json:"decryptionKeys"`
+	DecryptionKeys   *[][]string `json:"decryptionKeys"`
 	Histogram        *[]int      `json:"histogram"`
+	SlotLabels       []string    `json:"slotLabels"`
+	InnerVector      []int       `json:"innerVector"`
 }
 
 // APIResponsePoolDataPayload - API response for PoolDataPayload
@@ -75,10 +79,10 @@ type PublicKeyShareRequest struct {
 
 // CypherAndDKRequest - cyphertext vector and partial decryption key
 type CypherAndDKRequest struct {
-	ClientSequenceID   int      `json:"clientSequenceId"`
-	PoolLabel          string   `json:"poolLabel"`
-	CypherText         []string `json:"cypherText"`
-	DecryptionKeyShare []string `json:"decryptionKeyShare"`
+	ClientSequenceID   int        `json:"clientSequenceId"`
+	PoolLabel          string     `json:"poolLabel"`
+	CypherText         []string   `json:"cypherText"`
+	DecryptionKeyShare [][]string `json:"decryptionKeyShare"`
 }
 
 // HistogramPayload - histogram payload
