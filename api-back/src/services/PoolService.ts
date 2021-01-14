@@ -13,7 +13,7 @@ export class PoolService {
     poolMap = new Map<string, ExposurePool>()
 
     private _innerVector: number[] = [1,1,1,1,1]
-    private _slotLabels: string[] = this._innerVector.map(x => "L_"+x)
+    private _slotLabels: string[] = this._innerVector.map((x, i) => "L_"+i)
 
     wsServer = wsServer
 
