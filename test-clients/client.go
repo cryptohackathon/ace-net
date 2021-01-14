@@ -101,7 +101,7 @@ func register(host string, regInfo *RegistrationInfo) error {
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
-	fmt.Printf("ERR: %v", string(apiResponseData))
+	fmt.Printf("REGISTER RESPONSE: %v\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -120,6 +120,7 @@ func status(host string, regInfo RegistrationInfo, poolDataPayload *PoolDataPayl
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
+	fmt.Printf("STATUS RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -140,6 +141,7 @@ func postPublicKeyShare(host string, publicKeyShareReq PublicKeyShareRequest, po
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
+	fmt.Printf("POST PUBLIC KEY SHARE RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -158,6 +160,8 @@ func postCypherAndDecryptionKey(host string, cypherAndDKReq CypherAndDKRequest, 
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
+	fmt.Printf("POST CYPHER AND DECRYPT KEY REQUEST: %s\n", string(jsonValue))
+	fmt.Printf("POST CYPHER AND DECRYPT KEY RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -177,6 +181,8 @@ func postHistogram(host string, histogramPayload HistogramPayload, poolDataPaylo
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
+	fmt.Printf("HIST REQUEST: %s\n", string(jsonValue))
+	fmt.Printf("HIST RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -196,6 +202,7 @@ func listFinalized(host string, poolDataPayloadArray *[]PoolDataPayload) error {
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
+	fmt.Printf("POLL RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -393,7 +400,7 @@ func simulateClient(host string) {
 	// Sending public key share to central server
 	err = postPublicKeyShare(host, publicKeyShareReq, &statusData)
 	if err != nil {
-		fmt.Println("Error while checking status. Terminating client.")
+		fmt.Println("Error while posting public key share status. Terminating client.")
 		return
 	}
 	fmt.Println("PUBLIC KEY SHARE SUBMITTED")
@@ -459,7 +466,7 @@ func simulateClient(host string) {
 
 	err = postCypherAndDecryptionKey(host, cypherAndDKReq, &statusData)
 	if err != nil {
-		fmt.Printf("Error while checking status: %v. Terminating client", err)
+		fmt.Printf("Error while posting cyphertexts and decrypt keys status: %v. Terminating client", err)
 		return
 	}
 
@@ -478,7 +485,7 @@ func simulateAnalyticsServer(host string, secret string) {
 	for {
 		err := listFinalized(host, &poolDataPayloadArray)
 		if err != nil {
-			fmt.Printf("Error while checking status: %v. Terminating client.", err)
+			fmt.Printf("Error while polling status: %v. Terminating client.", err)
 			return
 		}
 		fmt.Printf("FINALIZED:\n")
@@ -514,7 +521,7 @@ func simulateAnalyticsServer(host string, secret string) {
 			histogramPayload.Histogram = histogram
 			err = postHistogram(host, histogramPayload, &statusData)
 			if err != nil {
-				fmt.Printf("Error while checking status: %v. Terminating client.\n", err)
+				fmt.Printf("Error while posting histogram status: %v. Terminating client.\n", err)
 				return
 			}
 			fmt.Printf("HISTOGRAM SUBMITTED: %v\n", histogramPayload)

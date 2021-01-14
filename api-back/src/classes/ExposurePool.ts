@@ -51,7 +51,7 @@ export class ExposurePool {
     }
 
     get size(): number {
-        return this._slotLabels.length
+        return this._innerVector.length
         // const tmp = parseInt(process.env.POOL_SIZE, 10)
         // if (isNaN(tmp)) throw Error("Invalid POOL_SIZE");
         // return tmp
