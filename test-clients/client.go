@@ -45,7 +45,7 @@ type PoolDataPayload struct {
 	PoolExpiry       string      `json:"poolExpiry"`
 	PublicKeys       *[]string   `json:"publicKeys"`
 	CypherTexts      *[][]string `json:"cypherTexts"`
-	DecryptionKeys   *[]string   `json:"decryptionKeys"`
+	DecryptionKeys   *[][]string `json:"decryptionKeys"`
 	Histogram        *[]int      `json:"histogram"`
 }
 
@@ -200,7 +200,6 @@ func listFinalized(host string, poolDataPayloadArray *[]PoolDataPayload) error {
 }
 
 type Client struct {
-	Sequence  int
 	Encryptor *fullysec.DMCFEClient
 }
 
@@ -221,7 +220,7 @@ func (c *Client) setShare(encodedPublicKeys []string) error {
 	var err error
 	publicKeys := make([]*bn256.G1, len(encodedPublicKeys))
 	for i := 0; i < len(encodedPublicKeys); i++ {
-		publicKeys[i], err = c.g1Base64Decoding(encodedPublicKeys[i])
+		publicKeys[i], err = g1Base64Decoding(encodedPublicKeys[i])
 		if err != nil {
 			return err
 		}
@@ -243,13 +242,13 @@ func (c *Client) encryptData(data []int, labels []string) ([]string, error) {
 }
 
 func (c *Client) deriveKeyShare(vector []int) ([]string, error) {
-	keyShare, err := c.Encryptor.DeriveKeyShare(c.toVector(vector))
+	keyShare, err := c.Encryptor.DeriveKeyShare(toVector(vector))
 	if err != nil {
 		return nil, err
 	}
 	result := make([]string, len(vector))
 	for i := 0; i < len(vector); i++ {
-		result[i] = c.g2Base64Encoding(keyShare[i])
+		result[i] = g2Base64Encoding(keyShare[i])
 	}
 	return result, nil
 }
@@ -258,11 +257,44 @@ func (c *Client) g1Base64Encoding(g1 *bn256.G1) string {
 	return base64.StdEncoding.EncodeToString(g1.Marshal())
 }
 
-func (c *Client) g2Base64Encoding(g2 *bn256.G2) string {
+func decryptHistogram(ciphers [][]string, keyShares [][]string, labels []string, vector []int) ([]int, error) {
+	var err error
+	y := toVector(vector)
+	b := big.NewInt(int64(len(vector)))
+	keys := make([]data.VectorG2, len(keyShares))
+	for i := 0; i < len(keyShares); i++ {
+		keys[i] = make(data.VectorG2, len(keyShares[i]))
+		for j := 0; j < len(keyShares[i]); j++ {
+			keys[i][j], err = g2Base64Decoding(keyShares[i][j])
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	histogram := make([]int, len(labels))
+	for i := 0; i < len(labels); i++ {
+		ciphersi := make([]*bn256.G1, len(ciphers[i]))
+		for j := 0; j < len(ciphers[i]); j++ {
+			ciphersi[j], err = g1Base64Decoding(ciphers[i][j])
+			if err != nil {
+				return nil, err
+			}
+		}
+		value, err := fullysec.DMCFEDecrypt(ciphersi, keys, y, labels[i], b)
+		if err != nil {
+			return nil, err
+		}
+		histogram[i] = int(value.Int64())
+	}
+	return histogram, nil
+}
+
+func g2Base64Encoding(g2 *bn256.G2) string {
 	return base64.StdEncoding.EncodeToString(g2.Marshal())
 }
 
-func (c *Client) g1Base64Decoding(b64 string) (*bn256.G1, error) {
+func g1Base64Decoding(b64 string) (*bn256.G1, error) {
 	bytes, err := base64.StdEncoding.DecodeString(b64)
 	if err != nil {
 		return nil, err
@@ -275,7 +307,20 @@ func (c *Client) g1Base64Decoding(b64 string) (*bn256.G1, error) {
 	return g1, nil
 }
 
-func (c *Client) toVector(vector []int) data.Vector {
+func g2Base64Decoding(b64 string) (*bn256.G2, error) {
+	bytes, err := base64.StdEncoding.DecodeString(b64)
+	if err != nil {
+		return nil, err
+	}
+	g2 := new(bn256.G2)
+	_, err = g2.Unmarshal(bytes)
+	if err != nil {
+		return nil, err
+	}
+	return g2, nil
+}
+
+func toVector(vector []int) data.Vector {
 	components := make([]*big.Int, len(vector))
 	for i := 0; i < len(vector); i++ {
 		components[i] = big.NewInt(int64(vector[i]))
@@ -409,6 +454,10 @@ func simulateAnalyticsServer(host string, secret string) {
 			histogramPayload.PoolLabel = poolDataPayloadArray[i].PoolLabel
 			cypherTextPtr := &(poolDataPayloadArray[i].CypherTexts)
 			decryptionKeysPtr := &(poolDataPayloadArray[i].DecryptionKeys)
+
+			// Decrypt histogram
+			// histogram := decryptHistogram(cypherTextPtr)
+
 			// ==========
 			// TODO: deserialize and decrypt
 			fmt.Printf("%d: \n%v\n%v\n", i, *cypherTextPtr, *decryptionKeysPtr)
