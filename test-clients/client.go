@@ -279,6 +279,7 @@ func decryptHistogram(ciphers [][]string, keyShares [][]string, labels []string,
 	var err error
 	y := toVector(vector)
 	b := big.NewInt(int64(len(vector)))
+	fmt.Printf("bound: %v\n", b)
 	keys := make([]data.VectorG2, len(keyShares))
 	for i := 0; i < len(keyShares); i++ {
 		keys[i] = make(data.VectorG2, len(keyShares[i]))
@@ -494,6 +495,15 @@ func simulateAnalyticsServer(host string, secret string) {
 				*poolDataPayloadArray[i].DecryptionKeys,
 				poolDataPayloadArray[i].SlotLabels,
 				poolDataPayloadArray[i].InnerVector)
+			if err != nil {
+				fmt.Printf("%v x %v\n", len(*poolDataPayloadArray[i].CypherTexts), len((*poolDataPayloadArray[i].CypherTexts)[0]))
+				fmt.Printf("%v\n", len(*poolDataPayloadArray[i].DecryptionKeys))
+				// fmt.Println(*poolDataPayloadArray[i].DecryptionKeys)
+				fmt.Println(poolDataPayloadArray[i].SlotLabels)
+				fmt.Println(poolDataPayloadArray[i].InnerVector)
+				fmt.Printf("Error decrypting histogram: %v. Terminating client.\n", err)
+				return
+			}
 
 			// ==========
 			// TODO: deserialize and decrypt
