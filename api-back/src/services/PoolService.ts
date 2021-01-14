@@ -12,8 +12,14 @@ import { wsServer } from "../server";
 export class PoolService {
     poolMap = new Map<string, ExposurePool>()
 
-    private _innerVector: number[] = [1,1,1,1,1]
-    private _slotLabels: string[] = this._innerVector.map((x, i) => "L_"+i)
+    private _innerVector: number[] = Array<number>(this.size).fill(1)  // all ones vector
+    private _slotLabels: string[] = ["L1", "L2", "L3", "L4", "L5"]
+
+    get size(): number {
+        const tmp = parseInt(process.env.POOL_SIZE, 10)
+        if (isNaN(tmp)) throw Error("Invalid POOL_SIZE");
+        return tmp
+    }
 
     wsServer = wsServer
 

@@ -35,9 +35,6 @@ export class ExposurePool {
         if(!innerVector) {
             throw Error("Must not be null: 'innerVector'")
         }
-        if(innerVector.length !== slotLabels.length) {
-            throw Error("Lengths of 'slotLabel' and 'innerVector' do no match")
-        }
         this._slotLabels = slotLabels
         this._innerVector = innerVector
         this._creationTime = new Date()
@@ -47,8 +44,6 @@ export class ExposurePool {
         this._publicKeys = Array<string>(this.size).fill(null)
         this._cypherTexts = Array<string[]>(this.size).fill(null)
         this._decryptionKeys = Array<string[]>(this.size).fill(null)
-
-
     }
 
     get label(): string {
@@ -56,9 +51,10 @@ export class ExposurePool {
     }
 
     get size(): number {
-        const tmp = parseInt(process.env.POOL_SIZE, 10)
-        if (isNaN(tmp)) throw Error("Invalid POOL_SIZE");
-        return tmp
+        return this._slotLabels.length
+        // const tmp = parseInt(process.env.POOL_SIZE, 10)
+        // if (isNaN(tmp)) throw Error("Invalid POOL_SIZE");
+        // return tmp
     }
 
     get status() {

@@ -20,20 +20,20 @@ import (
 
 // RegistrationInfo - registration info
 type RegistrationInfo struct {
-	ClientSequenceID   int    `json:"clientSequenceId"`
-	PoolLabel          string `json:"poolLabel"`
-	RegistrationExpiry string `json:"registrationExpiry"`
-	Status             string `json:"status"`
-	SlotLabels         string `json:"slotLabels"`
-	InnerVector        []int  `json:"innerVector"`
+	ClientSequenceID   int      `json:"clientSequenceId"`
+	PoolLabel          string   `json:"poolLabel"`
+	RegistrationExpiry string   `json:"registrationExpiry"`
+	Status             string   `json:"status"`
+	SlotLabels         []string `json:"slotLabels"`
+	InnerVector        []int    `json:"innerVector"`
 }
 
 // APIResponseRegistrationInfo - API response for RegistrationInfo
 type APIResponseRegistrationInfo struct {
-	Data         RegistrationInfo `json:"data"`
-	ErrorDetails *string          `json:"errorDetails"`
-	ErrorMessage *string          `json:"errorMessage"`
-	Status       string           `json:"status"`
+	Data         RegistrationInfo        `json:"data"`
+	ErrorDetails *map[string]interface{} `json:"errorDetails"`
+	ErrorMessage *map[string]interface{} `json:"errorMessage"`
+	Status       string                  `json:"status"`
 }
 
 // PoolDataPayload - pool data payload
@@ -79,10 +79,10 @@ type PublicKeyShareRequest struct {
 
 // CypherAndDKRequest - cyphertext vector and partial decryption key
 type CypherAndDKRequest struct {
-	ClientSequenceID   int        `json:"clientSequenceId"`
-	PoolLabel          string     `json:"poolLabel"`
-	CypherText         []string   `json:"cypherText"`
-	DecryptionKeyShare [][]string `json:"decryptionKeyShare"`
+	ClientSequenceID   int      `json:"clientSequenceId"`
+	PoolLabel          string   `json:"poolLabel"`
+	CypherText         []string `json:"cypherText"`
+	DecryptionKeyShare []string `json:"decryptionKeyShare"`
 }
 
 // HistogramPayload - histogram payload
@@ -101,6 +101,7 @@ func register(host string, regInfo *RegistrationInfo) error {
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
+	fmt.Printf("ERR: %v", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -246,14 +247,27 @@ func (c *Client) encryptData(data []int, labels []string) ([]string, error) {
 }
 
 func (c *Client) deriveKeyShare(vector []int) ([]string, error) {
+
+	// TEST
+	// oneVec := data.NewConstantVector(3, big.NewInt(1))
+	// keyShare, err := c.Encryptor.DeriveKeyShare(oneVec)
+
 	keyShare, err := c.Encryptor.DeriveKeyShare(toVector(vector))
 	if err != nil {
 		return nil, err
 	}
-	result := make([]string, len(vector))
-	for i := 0; i < len(vector); i++ {
+	fmt.Printf("MAKE %d %v LL: %d", len(vector), vector, len(keyShare))
+	// LOOKS LIKE KEYSHARES ARE OF DIFFERENT LENGTHS ...
+	// result := make([]string, len(vector))
+	// for i := 0; i < len(vector); i++ {
+	// 	result[i] = g2Base64Encoding(keyShare[i])
+	// }
+
+	result := make([]string, len(keyShare))
+	for i := 0; i < len(keyShare); i++ {
 		result[i] = g2Base64Encoding(keyShare[i])
 	}
+
 	return result, nil
 }
 
@@ -332,6 +346,13 @@ func toVector(vector []int) data.Vector {
 	return data.NewVector(components)
 }
 
+func simulateExposure(size int) []int {
+	exposure := make([]int, size)
+	index := rand.Intn(size)
+	exposure[index] = 1
+	return exposure
+}
+
 func simulateClient(host string) {
 	fmt.Println("Starting the client...")
 
@@ -347,7 +368,7 @@ func simulateClient(host string) {
 	// Registration
 	err := register(host, &regInfo)
 	if err != nil {
-		fmt.Println("Error while registring. Terminating client.")
+		fmt.Printf("Error while registring: %v. Terminating client.", err)
 		return
 	}
 
@@ -413,7 +434,12 @@ func simulateClient(host string) {
 	// TODO: provide real data and labels
 	// cypherAndDKReq.CypherText = make([]string, 5)
 	// copy(cypherAndDKReq.CypherText, []string{"CY", "PH", "ER", "TE", "XT"})
-	cypherAndDKReq.CypherText, err = client.encryptData([]int{1, 0, 0, 0, 0}, []string{"CY", "PH", "ER", "TE", "XT"})
+	exposure := simulateExposure(len(statusData.SlotLabels))
+	fmt.Printf("Simulating exposure %v\n", exposure)
+	cypherAndDKReq.CypherText, err = client.encryptData(exposure, statusData.SlotLabels)
+	// []int{1, 0, 0, 0, 0},
+	// []string{"CY", "PH", "ER", "TE", "XT"}
+
 	if err != nil {
 		fmt.Printf("Error encrypting client data: %v. Terminating client", err)
 		return
@@ -421,7 +447,10 @@ func simulateClient(host string) {
 	// cypherAndDKReq.DecryptionKeyShare = fmt.Sprintf("<DEC-KEY-%d>", regInfo.ClientSequenceID)
 	// TODO: provide the size of pool or vector
 	// WARN: DecryptionKeyShare is an array of strings
-	cypherAndDKReq.DecryptionKeyShare, err = client.deriveKeyShare([]int{1, 1, 1, 1, 1, 1, 1, 1})
+	fmt.Printf("INN: %v", statusData.InnerVector)
+
+	cypherAndDKReq.DecryptionKeyShare, err = client.deriveKeyShare(statusData.InnerVector)
+	// []int{1, 1, 1, 1, 1, 1, 1, 1}
 	if err != nil {
 		fmt.Printf("Error deriving client key share: %v. Terminating client", err)
 		return
