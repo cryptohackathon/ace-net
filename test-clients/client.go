@@ -297,6 +297,7 @@ func decryptHistogram(ciphers [][]string, keyShares [][]string, labels []string,
 		}
 	}
 
+	fmt.Printf("LABS: %v\n", labels)
 	histogram := make([]int, len(labels))
 	for i := 0; i < len(labels); i++ {
 		ciphersi := make([]*bn256.G1, len(ciphers[i]))
@@ -477,7 +478,7 @@ func simulateClient(host string) {
 
 }
 
-func simulateAnalyticsServer(host string, secret string) {
+func simulateAnalyticsServer(host string, secret string) error {
 	var poolDataPayloadArray []PoolDataPayload
 	var statusData PoolDataPayload
 	var histogramPayload HistogramPayload
@@ -486,7 +487,7 @@ func simulateAnalyticsServer(host string, secret string) {
 		err := listFinalized(host, &poolDataPayloadArray)
 		if err != nil {
 			fmt.Printf("Error while polling status: %v. Terminating client.", err)
-			return
+			return err
 		}
 		fmt.Printf("FINALIZED:\n")
 
@@ -502,6 +503,10 @@ func simulateAnalyticsServer(host string, secret string) {
 				poolDataPayloadArray[i].SlotLabels,
 				poolDataPayloadArray[i].InnerVector)
 
+			if err != nil {
+				fmt.Printf("Histogram calculation failed: %v\n", err)
+				return err
+			}
 			// ==========
 			// TODO: deserialize and decrypt
 			fmt.Printf("%d: \n%v\n%v\n", i, *cypherTextPtr, *decryptionKeysPtr)
@@ -522,7 +527,7 @@ func simulateAnalyticsServer(host string, secret string) {
 			err = postHistogram(host, histogramPayload, &statusData)
 			if err != nil {
 				fmt.Printf("Error while posting histogram status: %v. Terminating client.\n", err)
-				return
+				return err
 			}
 			fmt.Printf("HISTOGRAM SUBMITTED: %v\n", histogramPayload)
 			fmt.Println(statusData.Status)
@@ -555,7 +560,10 @@ func main() {
 	}
 
 	if mode == "ANALYTICS" {
-		simulateAnalyticsServer(host, secret)
+		err := simulateAnalyticsServer(host, secret)
+		if err != nil {
+			fmt.Printf("Error in analytics server: %s. Terminating client.", err)
+		}
 		return
 	}
 
