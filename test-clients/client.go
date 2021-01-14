@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -10,6 +11,11 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+
+	"github.com/fentec-project/bn256"
+	"github.com/fentec-project/gofe/data"
+	"github.com/fentec-project/gofe/innerprod/fullysec"
+	"github.com/pkg/errors"
 )
 
 // RegistrationInfo - registration info
@@ -72,7 +78,7 @@ type CypherAndDKRequest struct {
 	ClientSequenceID   int      `json:"clientSequenceId"`
 	PoolLabel          string   `json:"poolLabel"`
 	CypherText         []string `json:"cypherText"`
-	DecryptionKeyShare string   `json:"decryptionKeyShare"`
+	DecryptionKeyShare []string `json:"decryptionKeyShare"`
 }
 
 // HistogramPayload - histogram payload
@@ -193,6 +199,90 @@ func listFinalized(host string, poolDataPayloadArray *[]PoolDataPayload) error {
 	return nil
 }
 
+type Client struct {
+	Sequence  int
+	Encryptor *fullysec.DMCFEClient
+}
+
+func (c *Client) init(sequence int) error {
+	encryptor, err := fullysec.NewDMCFEClient(sequence)
+	if err != nil {
+		return errors.Wrap(err, "could not instantiate fullysec")
+	}
+	c.Encryptor = encryptor
+	return nil
+}
+
+func (c *Client) getPublicKeyEncoding() string {
+	return c.g1Base64Encoding(c.Encryptor.ClientPubKey)
+}
+
+func (c *Client) setShare(encodedPublicKeys []string) error {
+	var err error
+	publicKeys := make([]*bn256.G1, len(encodedPublicKeys))
+	for i := 0; i < len(encodedPublicKeys); i++ {
+		publicKeys[i], err = c.g1Base64Decoding(encodedPublicKeys[i])
+		if err != nil {
+			return err
+		}
+	}
+	err = c.Encryptor.SetShare(publicKeys)
+	return err
+}
+
+func (c *Client) encryptData(data []int, labels []string) ([]string, error) {
+	ciphers := make([]string, len(data))
+	for i := 0; i < len(data); i++ {
+		g1, err := c.Encryptor.Encrypt(big.NewInt(int64(data[i])), labels[i])
+		if err != nil {
+			return nil, err
+		}
+		ciphers[i] = c.g1Base64Encoding(g1)
+	}
+	return ciphers, nil
+}
+
+func (c *Client) deriveKeyShare(vector []int) ([]string, error) {
+	keyShare, err := c.Encryptor.DeriveKeyShare(c.toVector(vector))
+	if err != nil {
+		return nil, err
+	}
+	result := make([]string, len(vector))
+	for i := 0; i < len(vector); i++ {
+		result[i] = c.g2Base64Encoding(keyShare[i])
+	}
+	return result, nil
+}
+
+func (c *Client) g1Base64Encoding(g1 *bn256.G1) string {
+	return base64.StdEncoding.EncodeToString(g1.Marshal())
+}
+
+func (c *Client) g2Base64Encoding(g2 *bn256.G2) string {
+	return base64.StdEncoding.EncodeToString(g2.Marshal())
+}
+
+func (c *Client) g1Base64Decoding(b64 string) (*bn256.G1, error) {
+	bytes, err := base64.StdEncoding.DecodeString(b64)
+	if err != nil {
+		return nil, err
+	}
+	g1 := new(bn256.G1)
+	_, err = g1.Unmarshal(bytes)
+	if err != nil {
+		return nil, err
+	}
+	return g1, nil
+}
+
+func (c *Client) toVector(vector []int) data.Vector {
+	components := make([]*big.Int, len(vector))
+	for i := 0; i < len(vector); i++ {
+		components[i] = big.NewInt(int64(vector[i]))
+	}
+	return data.NewVector(components)
+}
+
 func simulateClient(host string) {
 	fmt.Println("Starting the client...")
 
@@ -211,9 +301,15 @@ func simulateClient(host string) {
 		fmt.Println("Error while registring. Terminating client.")
 		return
 	}
-	// ==========
-	// TODO: initialize the client
-	// ==========
+
+	// Client initialization
+	client := new(Client)
+	err = client.init(regInfo.ClientSequenceID)
+	if err != nil {
+		fmt.Printf("Error in client initialization: %v\n", err)
+		return
+	}
+
 	fmt.Println("REGISTRED")
 	fmt.Println(regInfo)
 
@@ -221,10 +317,8 @@ func simulateClient(host string) {
 	publicKeyShareReq.PoolLabel = regInfo.PoolLabel
 	publicKeyShareReq.RegistrationExpiry = regInfo.RegistrationExpiry
 
-	// ==========
-	// TODO: submit real public key share
-	publicKeyShareReq.KeyShare = fmt.Sprintf("<KEY-SHARE-%d>", regInfo.ClientSequenceID)
-	// ==========
+	// Set public key share
+	publicKeyShareReq.KeyShare = client.getPublicKeyEncoding() // fmt.Sprintf("<KEY-SHARE-%d>", regInfo.ClientSequenceID)
 
 	// Sending public key share to central server
 	err = postPublicKeyShare(host, publicKeyShareReq, &statusData)
@@ -259,6 +353,7 @@ func simulateClient(host string) {
 		time.Sleep(delay * time.Millisecond)
 	}
 
+	client.setShare(*statusData.PublicKeys)
 	fmt.Println("PUBLIC KEY OBTAINED")
 	fmt.Println(statusData.Status)
 
@@ -266,10 +361,22 @@ func simulateClient(host string) {
 	cypherAndDKReq.PoolLabel = regInfo.PoolLabel
 
 	// ==========
-	// TODO: provide real cyphertext and decryption key
-	cypherAndDKReq.CypherText = make([]string, 5)
-	copy(cypherAndDKReq.CypherText, []string{"CY", "PH", "ER", "TE", "XT"})
-	cypherAndDKReq.DecryptionKeyShare = fmt.Sprintf("<DEC-KEY-%d>", regInfo.ClientSequenceID)
+	// TODO: provide real data and labels
+	// cypherAndDKReq.CypherText = make([]string, 5)
+	// copy(cypherAndDKReq.CypherText, []string{"CY", "PH", "ER", "TE", "XT"})
+	cypherAndDKReq.CypherText, err = client.encryptData([]int{1, 0, 0, 0, 0}, []string{"CY", "PH", "ER", "TE", "XT"})
+	if err != nil {
+		fmt.Printf("Error encrypting client data: %v. Terminating client", err)
+		return
+	}
+	// cypherAndDKReq.DecryptionKeyShare = fmt.Sprintf("<DEC-KEY-%d>", regInfo.ClientSequenceID)
+	// TODO: provide the size of pool or vector
+	// WARN: DecryptionKeyShare is an array of strings
+	cypherAndDKReq.DecryptionKeyShare, err = client.deriveKeyShare([]int{1, 1, 1, 1, 1, 1, 1, 1})
+	if err != nil {
+		fmt.Printf("Error deriving client key share: %v. Terminating client", err)
+		return
+	}
 	// ==========
 
 	err = postCypherAndDecryptionKey(host, cypherAndDKReq, &statusData)
