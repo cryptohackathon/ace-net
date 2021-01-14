@@ -19,15 +19,12 @@ export class PoolService {
 
     register(poolLabel?: string): RegistrationInfo {
         let pool: ExposurePool = null;
-        console.log("LAB:", poolLabel)
         if (!poolLabel) {   // register to any pool
             const sortedKeys = [...this.poolMap.keys()].sort()
-            console.log("SK:", sortedKeys)
             for (const label of sortedKeys) {  // find first pool where you can register
                 const tmpPool = this.poolMap.get(label)
                 if (tmpPool.status !== 'REGISTRATION') continue
                 try {
-                    console.log("Trying")
                     const res = tmpPool.register()
                     if (res) {
                         wsServer.clients.forEach(client => {
