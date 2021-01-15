@@ -254,27 +254,14 @@ func (c *Client) encryptData(data []int, labels []string) ([]string, error) {
 }
 
 func (c *Client) deriveKeyShare(vector []int) ([]string, error) {
-
-	// TEST
-	// oneVec := data.NewConstantVector(3, big.NewInt(1))
-	// keyShare, err := c.Encryptor.DeriveKeyShare(oneVec)
-
 	keyShare, err := c.Encryptor.DeriveKeyShare(toVector(vector))
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("MAKE %d %v LL: %d", len(vector), vector, len(keyShare))
-	// LOOKS LIKE KEYSHARES ARE OF DIFFERENT LENGTHS ...
-	// result := make([]string, len(vector))
-	// for i := 0; i < len(vector); i++ {
-	// 	result[i] = g2Base64Encoding(keyShare[i])
-	// }
-
 	result := make([]string, len(keyShare))
 	for i := 0; i < len(keyShare); i++ {
 		result[i] = g2Base64Encoding(keyShare[i])
 	}
-
 	return result, nil
 }
 
