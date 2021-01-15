@@ -95,10 +95,12 @@ In order to gather encrypted data and extract some useful metrics from it, we ha
 
 ## Getting started <a name="getting_started"/>
 
+This is a quick intro to run demo. Find more detailed instructions in the project subdirectories.
+
 ### [api-back](/api-back)
 Required: [node.js](https://nodejs.org/)
 
-Run `npm install` and `npm run dev` to start the server on port 9500. Access Swagger with API documentation on `localhost:9500/api-doc/`.
+Run `npm install` and `npm run dev` to start the server on port 9500. Access Swagger with [API documentation](https://cryptohackathon.github.io/ace-net/) on `localhost:9500/api-doc/`.
 
 ### [test-clients](/test-clients)
 Required: [go](https://golang.org/), [GoFE](https://github.com/fentec-project/gofe)
@@ -106,11 +108,9 @@ Required: [go](https://golang.org/), [GoFE](https://github.com/fentec-project/go
 Use `./run-clients.sh`to start client simulator and `./run-analytics-server` to start mockup analytics server.
 
 ### [ace-net-fe](ace-net-fe)
-Required: [node.js](https://nodejs.org/), [Angular](https://angular.io/)
+Required: [node.js](https://nodejs.org/), [Angular CLI](https://github.com/angular/angular-cli)
 
 Run `npm install` and `ng serve` to start the server on port 4200.
-
-Find more detailed instructions in project subdirectories.
 
 
 ## Topics for future work <a name="future_work"/>
