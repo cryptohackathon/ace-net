@@ -68,7 +68,7 @@ In order to gather encrypted data and extract some useful metrics from it, we ha
 ![Alt text](ace-net-scheme.png?raw=true "ACE* Framework")
 
 ### Process
-* *Phase 1: Registration*. Clients join a pool. On enrollment they are assigned a sequence number. Based on the sequence number a client generate a key and submits it to the pool.
+* *Phase 1: Registration*. Clients join a pool. On enrollment they are assigned a sequence number. Based on the sequence number a client generates a key and submits it to the pool.
 
 * *Phase 2: Key sharing*. All client keys are gathered in a pool and communicated to the clients together with histogram details.
 
