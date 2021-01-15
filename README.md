@@ -54,13 +54,11 @@ In the current version of the protocol, the data about the network and all encou
     - The highest risk score of all exposure incidents.
     - The sum of the full-range risk scores for all exposures for the user.
 
-Actual information from the field, e.g. about social distancing (days since exposure), yesterday’s risk encounters (nr. of keys matched), and yesterday’s risk received (max, sum), can help in better management of the health crysis with less coercive measures. These data can be processed for a region, when region label is provided by the user or for the whole country. 
+Actual information from the field, e.g. about social distancing (days since exposure), yesterday’s risk encounters (nr. of keys matched), and yesterday’s risk received (max, sum), can help in better management of social distancing and the health crysis. Health authorities now have additional tool to better specify the configuration settings that are used in risk score calculations and notification thresholds, enabling them to control the virus, by using less coercive measures. Additionally, by lowering risky encounters (e.g. through efficient policies), the spread of the disease can be lowered, too.
 
-Each CWA app can send (after explicit confirmation by the user) information about the number of encounters it 
+Each CWA app can share (after explicit confirmation by the user) data about user's risk exposures or data related to social distancing to analytics server, that calculates totals from multiple participants and prepares the visualisations with meaningful insights about exposure networks. 
+For "days since exposure" we create a vector of lenght 14 (one bucket for each day), whereas for "the number of keys that matched for an exposure detection" we create a vector of length seven (with buckets  0/1-2/3-5/6-10/11-20/21-40/41+, each representing an interval for the number of exposures matched). These data can be processed for a region, when region label is provided by the user or for the whole country. We use functional encryption (i.e. decentralized multi-client functional encryption scheme for inner product)  to encrypt and process the data from multiple CWA apps on the analytics server, see bellow.
 
-Using this approach, we can use functional encryption to process the data from multiple CWA apps on the analytics server, to get meaningful insights about exposure networks.
-Health authorities now have a tool to specify the configuration settings that are used in risk score calculations and notification thresholds. 
-Additionally, by lowering risky encounters (e.g. through efficient policies), the spread of the disease can be lowered, too.
 
 
 ## ACE* Framework <a name="ace_framework"/>
