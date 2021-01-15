@@ -26,7 +26,7 @@ export class PoolService {
     poolMap = new Map<string, ExposurePool>()
 
     private _innerVector: number[] = Array<number>(this.size).fill(1)  // all ones vector
-    private _slotLabels: string[] = ["L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9", "L10"]
+    private _slotLabels: string[] = ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13", "D14"]
 
     get size(): number {
         const tmp = parseInt(process.env.POOL_SIZE, 10)

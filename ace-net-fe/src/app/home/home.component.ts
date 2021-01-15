@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { catchError, filter, map, shareReplay, take, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, map, shareReplay, take, tap } from 'rxjs/operators';
 import { WsDataService } from '../services/ws-data.service';
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+
+const regije = ["Pomurska", "Podravska", "Koroška", "Savinjska", "Zasavska", "Posavska", "Jugovzhodna Slovenija", "Osrednjeslovenska", "Gorenjska", "Primorsko-notranjska", "Goriška", "Obalno-kraška"]
 
 
 interface ApiDefaultResponse {
@@ -53,6 +55,7 @@ export class HomeComponent implements OnInit {
     this.data$ = this.wsDataService.socket$.pipe(
       filter(x => x.message == 'POOLS_SUMMARY'),
       map(x => x.data),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       shareReplay(1)
     )
     this.slotLabels$ = this.data$.pipe(
@@ -115,4 +118,24 @@ export class HomeComponent implements OnInit {
       }
     ).pipe(take(1)).toPromise()
   }
+
+  simpleHash(text: string) {
+    var hash = 0, i, chr;
+    for (i = 0; i < text.length; i++) {
+      chr   = text.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return Math.abs(hash);
+  }
+
+  image(text: string) {
+    let regija = this.regijaName(text)
+    return `assets/${regija}.svg`
+  }
+
+  regijaName(text: string) {
+    return regije[this.simpleHash(text) % (regije.length)]
+  }
+
 }

@@ -10,7 +10,7 @@
   </div>
   <ng-container *ngIf="data$ | async as data">
     <table
-      class="table table-hover table-striped table-bordered"
+      class="table table-hover table-bordered"
       cellspacing="0">
       <thead *ngIf="slotLabels$ | async as slotLabels">
         <tr>
@@ -18,8 +18,9 @@
           <th>Size</th>
           <th>#PubKey Shrs</th>
           <th>#Cyphertexts</th>
+          <th>Region</th>
           <!-- <th *ngFor="let label of slotLabels; let i= index">{{label}}</th> -->
-          <th>Histogram</th>
+          <th>#Days since last exposure</th>
         </tr>
       </thead>
       <tbody>
@@ -28,6 +29,12 @@
           <td>{{row.poolSize}}</td>
           <td>{{row.noPublicKeys}}</td>
           <td>{{row.noCyphertexts}}</td>
+          <td>
+            <div class="flex-column align-items-center">
+              <img class="regija-image" [src]="image(row.poolLabel)">
+              <div class="regija-name">{{regijaName(row.poolLabel)}}</div>
+            </div>
+          </td>
           <!-- <td *ngFor="let label of row.slotLabels; let i= index">
             <ng-container>{{histogramValue(row.histogram, i)}}</ng-container>
           </td> -->
