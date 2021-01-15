@@ -90,7 +90,7 @@ In order to gather encrypted data and extract some useful metrics from it, we ha
 
 * *Client CLI in the analytics mode*. A command line interface written in GO is an analytics server mockup that is called by the backend app to decrypt user data. It is based on the [GoFE](https://github.com/fentec-project/gofe) library.
 
-* *Frontend app*. A node.js application build with Angular that interactively logs the data gathering process.
+* *Frontend app*. A node.js application build with Angular CLI that interactively logs the data gathering process.
 
 
 ## Getting started <a name="getting_started"/>
@@ -115,12 +115,12 @@ Run `npm install` and `ng serve` to start the server on port 4200.
 
 ## Topics for future work <a name="future_work"/>
 
-- Bring the results of this project to Corona-Warn-App
-- “Those who count the votes decide everything” - Voting systems (giving N votes between M >= N options)
+- Bring the results of this project to Corona-Warn-App.
+- “Those who count the votes decide everything” - Voting systems (giving N votes between M >= N options).
 - The decentralized nature of the framework fits perfectly to blockchain technologies. The pool management implemented in our backend system (api-back) could be transferred to e.g. [Ethereum Virtual Machine](https://ethereum.org/) ecosystem based on smart contracts.
-- Randomising communication patterns, by involving a part (half?) of the requests to be ignored or by submitting data using secret sharing schemes (e.g. partial data, multiple times)
+- Randomising communication patterns, by involving a part (half?) of the requests to be ignored or by submitting data using secret sharing schemes (e.g. partial data, multiple times).
 - GoFE problem: "panic: runtime error: invalid memory address or nil pointer dereference
- [signal SIGSEGV: segmentation violation code=0x1 addr=0x10 pc=0x67689b]"
+ [signal SIGSEGV: segmentation violation code=0x1 addr=0x10 pc=0x67689b]".
 
 
 

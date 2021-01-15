@@ -1,8 +1,12 @@
-# ACE api-bac
+# ACE api-back
 
 ## Introduction
 
-This is backend for ACE* project. 
+This is the backend for ACE* project. It implements the pool management system in four phases:
+- client registration to pool,
+- clients key sharing,
+- submission of encrypted data and keys to apply an inner product to the data,
+- inner product calculation.
 
 ## Getting started 
 
@@ -12,12 +16,16 @@ npm run routes
 npm run dev
 ```
 
-Check `http://localhost:9500/api-doc/` for API documentation or testing.
-
 The project is based on [TSOA](https://tsoa-community.github.io/docs/). 
 
 
-# Websocket demo
+## API documentation
+
+- [static Swagger API documentation](https://cryptohackathon.github.io/ace-net/),
+- check `http://localhost:9500/api-doc/` for testing.
+
+
+## Websocket demo
 
 Use Chrome. Google to Chrome Web Store. Install *Simple Websocket Client* extension.
 While server is running (`npm run dev`) do the following.
