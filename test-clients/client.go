@@ -101,14 +101,13 @@ func register(host string, regInfo *RegistrationInfo) error {
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
-	fmt.Printf("REGISTER RESPONSE: %v\n", string(apiResponseData))
+	// fmt.Printf("REGISTER RESPONSE: %v\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
 	}
 	*regInfo = apiResponse.Data
 	return nil
-
 }
 
 func status(host string, regInfo RegistrationInfo, poolDataPayload *PoolDataPayload) error {
@@ -120,14 +119,13 @@ func status(host string, regInfo RegistrationInfo, poolDataPayload *PoolDataPayl
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
-	fmt.Printf("STATUS RESPONSE: %s\n", string(apiResponseData))
+	// fmt.Printf("STATUS RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
 	}
 	*poolDataPayload = apiResponse.Data
 	return nil
-
 }
 
 func postPublicKeyShare(host string, publicKeyShareReq PublicKeyShareRequest, poolDataPayload *PoolDataPayload) error {
@@ -135,13 +133,13 @@ func postPublicKeyShare(host string, publicKeyShareReq PublicKeyShareRequest, po
 
 	var apiResponse APIResponsePoolDataPayload
 	jsonValue, _ := json.Marshal(publicKeyShareReq)
-	fmt.Printf("PUBLIC: %s\n", jsonValue)
+	// fmt.Printf("PUBLIC: %s\n", jsonValue)
 	response, err := http.Post(APIUrl, "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
-	fmt.Printf("POST PUBLIC KEY SHARE RESPONSE: %s\n", string(apiResponseData))
+	// fmt.Printf("POST PUBLIC KEY SHARE RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -160,8 +158,8 @@ func postCypherAndDecryptionKey(host string, cypherAndDKReq CypherAndDKRequest, 
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
-	fmt.Printf("POST CYPHER AND DECRYPT KEY REQUEST: %s\n", string(jsonValue))
-	fmt.Printf("POST CYPHER AND DECRYPT KEY RESPONSE: %s\n", string(apiResponseData))
+	// fmt.Printf("POST CYPHER AND DECRYPT KEY REQUEST: %s\n", string(jsonValue))
+	// fmt.Printf("POST CYPHER AND DECRYPT KEY RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -181,8 +179,8 @@ func postHistogram(host string, histogramPayload HistogramPayload, poolDataPaylo
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
-	fmt.Printf("HIST REQUEST: %s\n", string(jsonValue))
-	fmt.Printf("HIST RESPONSE: %s\n", string(apiResponseData))
+	// fmt.Printf("HIST REQUEST: %s\n", string(jsonValue))
+	// fmt.Printf("HIST RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -202,7 +200,7 @@ func listFinalized(host string, poolDataPayloadArray *[]PoolDataPayload) error {
 		return fmt.Errorf("The HTTP request failed with error %s", err)
 	}
 	apiResponseData, _ := ioutil.ReadAll(response.Body)
-	fmt.Printf("POLL RESPONSE: %s\n", string(apiResponseData))
+	// fmt.Printf("POLL RESPONSE: %s\n", string(apiResponseData))
 	err = json.Unmarshal(apiResponseData, &apiResponse)
 	if err != nil {
 		return fmt.Errorf("Cannot unmarshal APIResponse: %s", err)
@@ -211,6 +209,7 @@ func listFinalized(host string, poolDataPayloadArray *[]PoolDataPayload) error {
 	return nil
 }
 
+// Client - Participating client wrapper
 type Client struct {
 	Encryptor *fullysec.DMCFEClient
 }
@@ -284,7 +283,6 @@ func decryptHistogram(ciphers [][]string, keyShares [][]string, labels []string,
 		}
 	}
 
-	fmt.Printf("LABS: %v\n", labels)
 	histogram := make([]int, len(labels))
 	for i := 0; i < len(labels); i++ {
 		ciphersi := make([]*bn256.G1, len(vector))
@@ -341,6 +339,7 @@ func toVector(vector []int) data.Vector {
 	return data.NewVector(components)
 }
 
+// Exposure simulation
 func simulateExposure(size int) []int {
 	exposure := make([]int, size)
 	index := rand.Intn(size)
@@ -349,7 +348,7 @@ func simulateExposure(size int) []int {
 }
 
 func simulateClient(host string) {
-	fmt.Println("Starting the client...")
+	// fmt.Println("Starting the client...")
 
 	// Initial delay
 	startDelay := time.Duration(rand.Intn(500))
@@ -371,12 +370,12 @@ func simulateClient(host string) {
 	client := new(Client)
 	err = client.init(regInfo.ClientSequenceID)
 	if err != nil {
-		fmt.Printf("Error in client initialization: %v\n", err)
+		fmt.Printf("Error in client initialization: %v. Terminating client.\n", err)
 		return
 	}
 
-	fmt.Println("REGISTRED")
-	fmt.Println(regInfo)
+	// fmt.Println("REGISTRED")
+	// fmt.Println(regInfo)
 
 	publicKeyShareReq.ClientSequenceID = regInfo.ClientSequenceID
 	publicKeyShareReq.PoolLabel = regInfo.PoolLabel
@@ -391,8 +390,8 @@ func simulateClient(host string) {
 		fmt.Println("Error while posting public key share status. Terminating client.")
 		return
 	}
-	fmt.Println("PUBLIC KEY SHARE SUBMITTED")
-	fmt.Println(statusData.Status)
+	// fmt.Println("PUBLIC KEY SHARE SUBMITTED")
+	// fmt.Println(statusData.Status)
 
 	// Waiting for collection of all key shares on server
 	cnt := 0
@@ -408,60 +407,51 @@ func simulateClient(host string) {
 			fmt.Println("Error while checking status. Terminating client.")
 			return
 		}
-		fmt.Println(statusData)
+		// fmt.Println(statusData)
 		if statusData.Status == "EXPIRED" {
 			fmt.Println("Pool expired. Terminating client.")
 			return
 		}
-		delay := time.Duration(500 + rand.Intn(1000))
+		delay := time.Duration(500 + rand.Intn(2000))
 		// fmt.Println("POLL DELAY: %f", delay)
 		time.Sleep(delay * time.Millisecond)
 	}
 
 	client.setShare(*statusData.PublicKeys)
-	fmt.Println("PUBLIC KEY OBTAINED")
-	fmt.Println(statusData.Status)
+	// fmt.Println("PUBLIC KEY OBTAINED")
+	// fmt.Println(statusData.Status)
 
 	cypherAndDKReq.ClientSequenceID = regInfo.ClientSequenceID
 	cypherAndDKReq.PoolLabel = regInfo.PoolLabel
 
-	// ==========
-	// TODO: provide real data and labels
-	// cypherAndDKReq.CypherText = make([]string, 5)
-	// copy(cypherAndDKReq.CypherText, []string{"CY", "PH", "ER", "TE", "XT"})
+	// Simulate exposure
 	exposure := simulateExposure(len(statusData.SlotLabels))
-	fmt.Printf("Simulating exposure %v\n", exposure)
+	fmt.Printf("CLIENT %d: Simulating exposure %v\n", regInfo.ClientSequenceID, exposure)
 	cypherAndDKReq.CypherText, err = client.encryptData(exposure, statusData.SlotLabels)
 	// []int{1, 0, 0, 0, 0},
 	// []string{"CY", "PH", "ER", "TE", "XT"}
 
 	if err != nil {
-		fmt.Printf("Error encrypting client data: %v. Terminating client", err)
+		fmt.Printf("CLIENT %d: Error encrypting client data: %v. Terminating client", regInfo.ClientSequenceID, err)
 		return
 	}
-	// cypherAndDKReq.DecryptionKeyShare = fmt.Sprintf("<DEC-KEY-%d>", regInfo.ClientSequenceID)
-	// TODO: provide the size of pool or vector
-	// WARN: DecryptionKeyShare is an array of strings
-	fmt.Printf("INN: %v", statusData.InnerVector)
 
 	cypherAndDKReq.DecryptionKeyShare, err = client.deriveKeyShare(statusData.InnerVector)
-	// []int{1, 1, 1, 1, 1, 1, 1, 1}
 	if err != nil {
-		fmt.Printf("Error deriving client key share: %v. Terminating client", err)
+		fmt.Printf("CLIENT %d: Error deriving client key share: %v. Terminating client", regInfo.ClientSequenceID, err)
 		return
 	}
-	// ==========
 
 	err = postCypherAndDecryptionKey(host, cypherAndDKReq, &statusData)
 	if err != nil {
-		fmt.Printf("Error while posting cyphertexts and decrypt keys status: %v. Terminating client", err)
+		fmt.Printf("CLIENT %d: Error while posting cyphertexts and decrypt keys status: %v. Terminating client", regInfo.ClientSequenceID, err)
 		return
 	}
 
-	fmt.Println("ENCRYPTION SUBMITTED")
-	fmt.Println(statusData.Status)
+	// fmt.Println("ENCRYPTION SUBMITTED")
+	// fmt.Println(statusData.Status)
 
-	fmt.Println("END. Terminating client.")
+	fmt.Printf("CLIENT %d: DONE\n", regInfo.ClientSequenceID)
 
 }
 
@@ -470,13 +460,16 @@ func simulateAnalyticsServer(host string, secret string) error {
 	var statusData PoolDataPayload
 	var histogramPayload HistogramPayload
 	histogramPayload.Secret = secret
+
+	fmt.Println("Analytics server simulation started")
 	for {
+		fmt.Println("POLLING ...")
 		err := listFinalized(host, &poolDataPayloadArray)
 		if err != nil {
 			fmt.Printf("Error while polling status: %v. Terminating client.", err)
 			return err
 		}
-		fmt.Printf("FINALIZED:\n")
+		// fmt.Printf("FINALIZED:\n")
 
 		for i := 0; i < len(poolDataPayloadArray); i++ {
 			histogramPayload.PoolLabel = poolDataPayloadArray[i].PoolLabel
@@ -501,31 +494,19 @@ func simulateAnalyticsServer(host string, secret string) error {
 				fmt.Printf("Histogram calculation failed: %v\n", err)
 				return err
 			}
-			// ==========
-			// TODO: deserialize and decrypt
+
 			// fmt.Printf("%d: \n%v\n%v\n", i, *cypherTextPtr, *decryptionKeysPtr)
-			fmt.Printf("Histogram: %v\n", histogram)
-
-			// ==========
-			// TODO: post decrypted values and create real histogram
-
-			exampleHistogram := make([]*big.Int, 0)
-			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(1))
-			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(2))
-			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(5))
-			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(0))
-			exampleHistogram = append(exampleHistogram, new(big.Int).SetInt64(2))
-			// ==========
+			// fmt.Printf("Histogram: %v\n", histogram)
 
 			histogramPayload.Histogram = histogram
 			err = postHistogram(host, histogramPayload, &statusData)
 			if err != nil {
-				fmt.Printf("Error while posting histogram status: %v. Terminating client.\n", err)
+				fmt.Printf("Error while posting histogram status: %v. Terminating analytics client.\n", err)
 				return err
 			}
-			fmt.Printf("HISTOGRAM SUBMITTED: %v\n", histogramPayload)
-			fmt.Println(statusData.Status)
-			// return nil
+			fmt.Printf("HISTOGRAM: %v\n", histogram)
+			// fmt.Printf("HISTOGRAM SUBMITTED: %v\n", histogramPayload)
+			// fmt.Println(statusData.Status)
 		}
 
 		delay := time.Duration(2000)
@@ -538,18 +519,14 @@ func main() {
 
 	modePtr := flag.String("mode", "CLIENT", "Client operation mode: CLIENT or ANALYTICS")
 	hostPtr := flag.String("host", "http://localhost:9500", "URL of central server")
-	secretPtr := flag.String("secret", "", "URL of central server")
+	secretPtr := flag.String("secret", "", "Secret for posting histograms")
 	flag.Parse()
-	// 	argsWithProg := os.Args
-
-	// 	const defaultHost = "http://localhost:9500"
-	// const defaultMode = "CLIENT"
 
 	mode := *modePtr
 	host := *hostPtr
 	secret := *secretPtr
 
-	fmt.Printf("Running in %s mode. Connected to %s\n", mode, host)
+	// fmt.Printf("Running in %s mode. Connected to %s\n", mode, host)
 	if mode == "CLIENT" {
 		simulateClient(host)
 		return

@@ -13,7 +13,7 @@ export class PoolService {
 
     constructor() {
         setInterval(() => {
-            console.log("WORKING")
+            // console.log("WORKING")
             wsServer.clients.forEach(client => {
                 client.send(JSON.stringify({
                     message: 'POOLS_SUMMARY',

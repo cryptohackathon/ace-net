@@ -5,10 +5,13 @@
       Pool overview <ng-container *ngIf="data$ | async as data">({{data.length}})</ng-container>
     </div>
     <div class="button-wrapper">
-      <button type="button" class="btn btn-primary" (click)="reset()">Reset</button>
+      <!-- <button type="button" class="btn btn-primary" (click)="reset()">Reset</button> -->
     </div>
   </div>
-  <ng-container *ngIf="data$ | async as data">
+  <ng-container *ngIf="data$ | async as data; else dataMissing">
+    <ng-container *ngIf="data.length == 0">
+    <ng-container *ngTemplateOutlet="dataMissing"></ng-container>
+    </ng-container>
     <table
       class="table table-hover table-bordered"
       cellspacing="0">
@@ -57,3 +60,6 @@
     <!-- <pre>{{data | json}}</pre> -->
   </ng-container>
 </div>
+
+
+<ng-template #dataMissing><p class="text-warning mt-3">Please run simulation clients from command line ...</p></ng-template>

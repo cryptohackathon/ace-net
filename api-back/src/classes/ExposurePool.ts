@@ -166,6 +166,7 @@ export class ExposurePool {
 
         const now = new Date()
         if (now > this.expires) {
+            console.log(`START: ${this._creationTime}\nEXP: ${this.expires}\nNOW: ${now}\n`)
             this._status = 'EXPIRED'
             throw Error("Pool has expired.")
         }
