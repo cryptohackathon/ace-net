@@ -112,7 +112,7 @@ Run `npm install` and `ng serve` to start the server on port 4200.
 ### [test-clients](/test-clients)
 Required: [go](https://golang.org/), [GoFE](https://github.com/fentec-project/gofe)
 
-Use `./run-clients.sh`to start client simulator and `./run-analytics-server` to start mockup analytics server.
+Use `./run-analytics-server` to start mockup analytics server and `./run-clients.sh` to start client simulator.
 
 
 ## Topics for future work <a name="future_work"/>
