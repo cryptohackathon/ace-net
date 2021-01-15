@@ -2,10 +2,16 @@
 
 ## Quick links
 
-- [ACE* Framework](#ace_framework)
+- [About](#about)
+- [Objectives](#objectives)
 - [Background](#background)
+- [ACE* Framework](#ace_framework)
+- [Getting started](#getting_started)
+- [Topics for future work](#future_work)
+- [Interesting references](#references)
 
-## About
+
+## About <a name="about"/>
 
 The project explores possible applications of functional encryption (FE) on analyzing contact log data collected by [Corona-Warn-App](https://github.com/corona-warn-app) (CWA) on mobile devices, based on [Exposure Notification protocol](https://blog.google/documents/Exposure_Notification_-Cryptography_Specification_v1.2.1.pdf). 
 
@@ -16,7 +22,7 @@ The goal of [ACE* project](https://github.com/cryptohackathon/ace-net) is to dem
 In this way, users and health authorities could benefit from insights from the field about social distancing and aggregated exposure risk.
 
 
-## Objectives
+## Objectives <a name="objectives"/>
 
 The objective of this project is to get insights about the actual social distancing during Covid-19 epidemia, directly from the participants.
 
@@ -87,7 +93,7 @@ In order to gather encrypted data and extract some useful metrics from it, we ha
 * *Frontend app*. A node.js application build with Angular that interactively logs the data gathering process.
 
 
-## Developer documentation
+## Getting started <a name="getting_started"/>
 
 ### [api-back](/api-back)
 Required: [node.js](https://nodejs.org/)
@@ -107,7 +113,7 @@ Run `npm install` and `ng serve` to start the server on port 4200.
 Find more detailed instructions in project subdirectories.
 
 
-## Topics for future work
+## Topics for future work <a name="future_work"/>
 
 - Bring the results of this project to Corona-Warn-App
 - “Those who count the votes decide everything” - Voting systems (giving N votes between M >= N options)
@@ -117,7 +123,7 @@ Find more detailed instructions in project subdirectories.
 
 
 
-## Interesting references
+## Interesting references <a name="references"/>
 
 - [Exposure Notification cryptography specification](https://blog.google/documents/Exposure_Notification_-Cryptography_Specification_v1.2.1.pdf)
 - [Corona-Warn-App documentation](https://github.com/corona-warn-app/cwa-documentation)
@@ -125,28 +131,3 @@ Find more detailed instructions in project subdirectories.
 - Kukkala VB, Saini JS, Iyengar SRS, [Privacy preserving network analysis of distributed social networks](https://eprint.iacr.org/2016/427.pdf), International Conference on Information Systems Security, 336-355, 2016
 - VB Kukkala, SRS Iyengar, [Computing Betweenness Centrality: An Efficient Privacy-Preserving Approach](https://link.springer.com/chapter/10.1007/978-3-030-00434-7_2), International Conference on Cryptology and Network Security, 23-42
 - VB Kukkala, SRS Iyengar, [Identifying Influential Spreaders in a Social Network (While Preserving Privacy)](https://content.sciendo.com/downloadpdf/journals/popets/2020/2/article-p537.pdf), Proceedings on Privacy Enhancing Technologies 2020 (2), 537-557
-
-
-
-
-------------------------------------
-
-## Selected challenge = Apply
-
-Demonstrate a viable application of FE, for example, in the use case of access control or privacy-preserving AI, see [challenges](https://cryptohackathon.eu/#challenges) and [tutorial](https://us02web.zoom.us/rec/share/PeSRUAaUYbDBiN6AaQeszotTeALfuDyMyZxX5TbnfQxaGUGl4H_DGOCMeUmEToMD.0x18XGtN1pHHKGb1) (password: W$&k7Gwg).
-
-Show the practicability and versatility of FE and reduce the entry barrier for researchers, engineers, product owners, architects to deploy FE in their solutions, ranging from prototypes to enterprise-ready products.
-
-- Technical Execution (40 %)
-    - How has the team effectively utilized the FE technologies?
-    - How easy is the application to use?
-    - How advanced is the prototype presented?
-    - Is there a working demo?
-    - Is the project well documented (readme, wiki), such that follow-up work is possible.
-- Challenge Fit (20 %)
-    - How relevant is the project to the stated challenge?
-- Impact (40 %)
-    - Will this solution have a far reach and market potential?
-
-
-
