@@ -1,5 +1,12 @@
 # ACE* - Analytics of Covid Exposure Networks
 
+## Quick links
+
+- [ACE* Framework](#ace_framework)
+- [Background](#background)
+
+## About
+
 The project explores possible applications of functional encryption (FE) on analyzing contact log data collected by [Corona-Warn-App](https://github.com/corona-warn-app) (CWA) on mobile devices, based on [Exposure Notification protocol](https://blog.google/documents/Exposure_Notification_-Cryptography_Specification_v1.2.1.pdf). 
 
 Exposure Notification protocol collects contact log data through registration of Bluetooth low energy transmissions in a highly privacy preserving manner, on user's mobile devices, and prevents reconstruction of contact/exposure network, including the information about the contacts and their (possible) contagion. 
@@ -20,7 +27,7 @@ We have implemented a proof-of-concept (PoC) implementation of the core infrastr
 Next step should be to bring these new functionalities to the CWA app.
 
 
-## Background
+## Background <a name="background"/>
 
 [Corona-Warn-App (CWA)](https://www.coronawarn.app) is an open source project (mobile app + servers) that helps in tracing infection chains of SARS-CoV-2. It is uses a decentralized approach, with focus on data privacy and safety, (see e.g. privacy-preserving contact tracing specifications by [Apple](https://covid19.apple.com/contacttracing) & [Google](https://www.google.com/covid19/exposurenotifications)), and notifies users if they have been exposed. CWA is specifically designed to [ensure](https://blog.google/documents/Exposure_Notification_-Cryptography_Specification_v1.2.1.pdf) for each step that the app processes a minimum of required personal data that is handled with maximum protection - for the following 2 objectives:
 
@@ -56,7 +63,8 @@ Health authorities now have a tool to specify the configuration settings that ar
 Additionally, by lowering risky encounters (e.g. through efficient policies), the spread of the disease can be lowered, too.
 
 
-## ACE* Framework
+## ACE* Framework <a name="ace_framework"/>
+
 In order to gather encrypted data and extract some useful metrics from it, we have developed a framework with the decentralized multi-client functional encryption scheme for inner product ([DMCFE](https://eprint.iacr.org/2017/989.pdf)) in its core. The framework serves to produce data represented in histograms. A histogram is obtained from the data submitted by a group of clients (CWA users) who join to a pool characterized by time and location.
 
 ![Alt text](ace-net-scheme.png?raw=true "ACE* Framework")
@@ -83,17 +91,17 @@ In order to gather encrypted data and extract some useful metrics from it, we ha
 
 ## Developer documentation
 
-### api-back
+### [api-back](/api-back)
 Required: [node.js](https://nodejs.org/)
 
 Run `npm install` and `npm run dev` to start the server on port 9500. Access Swagger with API documentation on `localhost:9500/api-doc/`.
 
-### test-clients
+### [test-clients](/test-clients)
 Required: [go](https://golang.org/), [GoFE](https://github.com/fentec-project/gofe)
 
 Use `./run-clients.sh`to start client simulator and `./run-analytics-server` to start mockup analytics server.
 
-### ace-net-fe
+### [ace-net-fe](ace-net-fe)
 Required: [node.js](https://nodejs.org/), [Angular](https://angular.io/)
 
 Run `npm install` and `ng serve` to start the server on port 4200.
