@@ -1,5 +1,7 @@
 # ACE* - Analytics of Covid Exposure Networks
 
+![Alt text](ace-net.PNG?raw=true "ACE*")
+
 ## Quick links
 
 - [About](#about)
