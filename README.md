@@ -117,6 +117,7 @@ Run `npm install` and `ng serve` to start the server on port 4200.
 
 - Bring the results of this project to Corona-Warn-App
 - “Those who count the votes decide everything” - Voting systems (giving N votes between M >= N options)
+- The decentralized nature of the framework fits perfectly to blockchain technologies. The pool management implemented in our backend system (api-back) could be transferred to e.g. [Ethereum Virtual Machine](https://ethereum.org/) ecosystem based on smart contracts.
 - Randomising communication patterns, by involving a part (half?) of the requests to be ignored or by submitting data using secret sharing schemes (e.g. partial data, multiple times)
 - GoFE problem: "panic: runtime error: invalid memory address or nil pointer dereference
  [signal SIGSEGV: segmentation violation code=0x1 addr=0x10 pc=0x67689b]"
