@@ -128,9 +128,33 @@ Run `npm install` and `ng serve` to start the server on port 4200.
 
 ## Interesting references <a name="references"/>
 
+FE
+
+- [Decentralized Multi-Client Functional Encryption for Inner Product](https://eprint.iacr.org/2017/989.pdf)
+- Subway heatmap [paper](https://fentec.eu/content/privacy-enhanced-machine-learning-functional-encryption), [github repository](https://github.com/fentec-project/FE-anonymous-heatmap)
+
+COVID
+
+- [COVID-19 Tracker](https://covid-19.sledilnik.org)
+- [Understanding metropolitan patterns of daily encounters](https://www.researchgate.net/publication/235009037_Understanding_metropolitan_patterns_of_daily_encounters)
+- [Slovenian Temporary Exposure Keys](https://github.com/sledilnik/cwa-scrape)
+
+Corona-Warn-APP
+
+- Corona-Warn-App, [project](https://www.coronawarn.app), [github repository](https://github.com/corona-warn-app/cwa-documentation)
+- [CWA Solution Architecture](https://github.com/corona-warn-app/cwa-documentation/blob/master/solution_architecture.md)
+- Exposure notification framework for contact tracing, [Apple](https://covid19.apple.com/contacttracing)
+[Google](https://www.google.com/covid19/exposurenotifications)
 - [Exposure Notification cryptography specification](https://blog.google/documents/Exposure_Notification_-Cryptography_Specification_v1.2.1.pdf)
-- [Corona-Warn-App documentation](https://github.com/corona-warn-app/cwa-documentation)
-- [Corona-Warn-App Solution Architecture](https://github.com/corona-warn-app/cwa-documentation/blob/master/solution_architecture.md)
-- Kukkala VB, Saini JS, Iyengar SRS, [Privacy preserving network analysis of distributed social networks](https://eprint.iacr.org/2016/427.pdf), International Conference on Information Systems Security, 336-355, 2016
-- VB Kukkala, SRS Iyengar, [Computing Betweenness Centrality: An Efficient Privacy-Preserving Approach](https://link.springer.com/chapter/10.1007/978-3-030-00434-7_2), International Conference on Cryptology and Network Security, 23-42
-- VB Kukkala, SRS Iyengar, [Identifying Influential Spreaders in a Social Network (While Preserving Privacy)](https://content.sciendo.com/downloadpdf/journals/popets/2020/2/article-p537.pdf), Proceedings on Privacy Enhancing Technologies 2020 (2), 537-557
+- [CWA Risk score calculation](https://www.r-bloggers.com/2020/09/risk-scoring-in-digital-contact-tracing-apps)
+
+Contact tracing
+
+- [Kukkala VB, Saini JS, Iyengar SRS, Privacy preserving network analysis of distributed social networks](https://eprint.iacr.org/2016/427.pdf)
+- [Kukkala VB, Iyengar SRS, Computing Betweenness Centrality: An Efficient Privacy-Preserving Approach](https://link.springer.com/chapter/10.1007/978-3-030-00434-7_2)
+- [Kukkala VB, Iyengar SRS, Identifying Influential Spreaders in a Social Network (While Preserving Privacy)](https://content.sciendo.com/downloadpdf/journals/popets/2020/2/article-p537.pdf)
+
+ACE* project github repository
+
+- [Github reposotory](https://github.com/cryptohackathon/ace-net)
+- [API documenttion](https://cryptohackathon.github.io/ace-net)
