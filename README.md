@@ -104,15 +104,15 @@ Required: [node.js](https://nodejs.org/)
 
 Run `npm install` and `npm run dev` to start the server on port 9500. Access Swagger with [API documentation](https://cryptohackathon.github.io/ace-net/) on `localhost:9500/api-doc/`.
 
-### [test-clients](/test-clients)
-Required: [go](https://golang.org/), [GoFE](https://github.com/fentec-project/gofe)
-
-Use `./run-clients.sh`to start client simulator and `./run-analytics-server` to start mockup analytics server.
-
 ### [ace-net-fe](ace-net-fe)
 Required: [node.js](https://nodejs.org/), [Angular CLI](https://github.com/angular/angular-cli)
 
 Run `npm install` and `ng serve` to start the server on port 4200.
+
+### [test-clients](/test-clients)
+Required: [go](https://golang.org/), [GoFE](https://github.com/fentec-project/gofe)
+
+Use `./run-clients.sh`to start client simulator and `./run-analytics-server` to start mockup analytics server.
 
 
 ## Topics for future work <a name="future_work"/>
