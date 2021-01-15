@@ -7,7 +7,9 @@
 
 ## About
 
-`client.go` implements routines for data encryption and decryption based on the decentralized multi-client functional encryption scheme for inner product ([DMCFE](https://eprint.iacr.org/2017/989.pdf)) implemented in [GoFE](https://github.com/fentec-project/gofe). It can be used to simulate the ACE* framework process by initializing clients that submit encrypted data to pools and an analytics server that serves the pool management system to extract hisograms from the gathered data.
+`client.go` implements routines for data encryption and decryption based on the decentralized multi-client functional encryption scheme for inner product ([DMCFE](https://eprint.iacr.org/2017/989.pdf)) implemented in [GoFE](https://github.com/fentec-project/gofe). It can be used to simulate the ACE* framework process by initializing
+- clients that submit encrypted data to pools and
+- an analytics server that serves the pool management system to extract hisograms from the gathered data.
 
 ## Simulation
 
